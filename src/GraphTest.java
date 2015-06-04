@@ -11,7 +11,7 @@ public class GraphTest {
 	@Test
 	public void testConstructor() {
 		Graph graph = new Graph("simple-square.txt");
-		graph.print();
+		graph.printPerturbedGraph();
 	}
 	
 	@Test
@@ -23,7 +23,19 @@ public class GraphTest {
 	@Test
 	public void testSquareCliqueJohnsonCycle() {
 		Graph graph = new Graph("square-clique.txt");
-		graph.print();
+		graph.printOriginalGraph();
+		graph.perturbEdges();
+	}
+	
+	@Test
+	public void testRandomPerfectCliqueConstructorSize4() {
+		Graph graph = new Graph(4);
+		graph.perturbEdges();
+	}
+	
+	@Test
+	public void testRandomPerfectCliqueConstructorSize5() {
+		Graph graph = new Graph(5);
 		graph.perturbEdges();
 	}
 
