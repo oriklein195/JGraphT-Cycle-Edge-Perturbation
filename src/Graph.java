@@ -103,19 +103,17 @@ public class Graph {
 		// edgeNumCyclesMap can stay the same since the topology of the graph doesn't change.
 		List<List> cycles = findSzwarcfiterLauerCycles();
 		Map<Integer, Map<Integer, Integer>> edgeNumCyclesMap = createEdgeNumCyclesMap(cycles);
-		double totalCycleInconsistency = perturbIteration(cycles, edgeNumCyclesMap);
-		print();
-		System.out.println("total cycle inconsistency: " + totalCycleInconsistency);
-		int iteration = 1;
+		double totalCycleInconsistency = 1.0; // any number greater than the threshold works
+		int iteration = 0;
 		while (totalCycleInconsistency > 0.001) {
 			iteration++;
-			totalCycleInconsistency = perturbIteration(cycles, edgeNumCyclesMap);
 			System.out.println("---------------------------------------------");
 			System.out.println("ITERATION: " + iteration);
+			totalCycleInconsistency = perturbIteration(cycles, edgeNumCyclesMap);
 			print();
+			System.out.println();
 			System.out.println("total cycle inconsistency: " + totalCycleInconsistency);
 		}
-		System.out.println();
 		System.out.println("---------------------------------------------");
 		System.out.println("Completed in " + iteration + " iterations.");
 	}
@@ -265,7 +263,7 @@ public class Graph {
 	}
 	
 	public void print() {
-		System.out.println("Vertices: " + graph.vertexSet());
+		//System.out.println("Vertices: " + graph.vertexSet());
 		System.out.println();
 		printEdges();
 	}

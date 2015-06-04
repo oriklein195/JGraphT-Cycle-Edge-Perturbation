@@ -23,6 +23,7 @@ public class GraphTest {
 	@Test
 	public void testSquareCliqueJohnsonCycle() {
 		Graph graph = new Graph("square-clique.txt");
+		graph.print();
 		graph.perturbEdges();
 	}
 
