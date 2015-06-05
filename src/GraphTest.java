@@ -21,7 +21,7 @@ public class GraphTest {
 	}
 	
 	@Test
-	public void testSquareCliqueJohnsonCycle() {
+	public void testSquareClique() {
 		Graph graph = new Graph("square-clique.txt");
 		graph.printOriginalGraph();
 		graph.perturbEdges();
@@ -53,6 +53,13 @@ public class GraphTest {
 	@Test
 	public void testFindCyclesOfClique10() {
 		Graph graph = new Graph(10);
+		graph.perturbEdges();
+	}
+	
+	@Test
+	public void test7Nodes9Edges() {
+		Graph graph = new Graph("7-nodes-9-edges.txt");
+		graph.printOriginalGraph();
 		graph.perturbEdges();
 	}
 	
