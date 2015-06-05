@@ -138,13 +138,14 @@ public class Graph {
 				output.add(cycle);
 			}
 		}
-		System.out.println(output);
+		System.out.println("Got cycles.");
 		return output;
 	}
 	
 	public void perturbEdges() {
 		// before each iteration, need to reset the totalEdgePerturbationMap
 		// edgeNumCyclesMap can stay the same since the topology of the graph doesn't change.
+		System.out.println("Starting to find cycles...");
 		List<List> cycles = findSzwarcfiterLauerCycles();
 		Map<Integer, Map<Integer, Integer>> edgeNumCyclesMap = createEdgeNumCyclesMap(cycles);
 		double totalCycleInconsistency = 1.0; // any number greater than the threshold works
