@@ -63,6 +63,12 @@ public class GraphTest {
 		graph.perturbEdges();
 	}
 	
+	@Test
+	public void testCreateGraph() {
+		Graph graph = new Graph("s1.txt");
+		graph.printOriginalGraph();
+		graph.perturbEdges();
+	}
 	
 
 }

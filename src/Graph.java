@@ -138,7 +138,8 @@ public class Graph {
 				output.add(cycle);
 			}
 		}
-		System.out.println("Got cycles.");
+		System.out.println(output);
+		System.out.println("There are " + output.size() + " cycles.");
 		return output;
 	}
 	
