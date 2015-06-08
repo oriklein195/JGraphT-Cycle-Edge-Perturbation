@@ -10,7 +10,6 @@ import java.util.Set;
 
 import org.jgrapht.alg.DijkstraShortestPath;
 import org.jgrapht.alg.cycle.JohnsonSimpleCycles;
-import org.jgrapht.alg.cycle.SzwarcfiterLauerSimpleCycles;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleDirectedWeightedGraph;
 
@@ -138,8 +137,8 @@ public class Graph {
 				output.add(cycle);
 			}
 		}
-		System.out.println(output);
-		System.out.println("There are " + output.size() + " cycles.");
+		//System.out.println(output);
+		System.out.println("There are " + output.size() + " cycles of length 3 or greater.");
 		return output;
 	}
 	

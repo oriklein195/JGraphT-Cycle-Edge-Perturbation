@@ -21,6 +21,12 @@ public class GraphTest {
 	}
 	
 	@Test
+	public void testSzwarcfiterLauerSimpleCycles() {
+		Graph graph = new Graph("simple-square.txt");
+		graph.findSzwarcfiterLauerCycles();
+	}
+	
+	@Test
 	public void testSquareClique() {
 		Graph graph = new Graph("square-clique.txt");
 		graph.printOriginalGraph();
@@ -68,6 +74,12 @@ public class GraphTest {
 		Graph graph = new Graph("s1.txt");
 		graph.printOriginalGraph();
 		graph.perturbEdges();
+	}
+	
+	@Test
+	public void testSzwarcfiterLauerCyclesOfData() {
+		Graph graph = new Graph("s1.txt");
+		graph.findSzwarcfiterLauerCycles();
 	}
 	
 
