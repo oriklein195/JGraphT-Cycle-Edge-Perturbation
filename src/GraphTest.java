@@ -76,10 +76,31 @@ public class GraphTest {
 		graph.perturbEdges();
 	}
 	
+<<<<<<< Updated upstream
 	@Test
 	public void testSzwarcfiterLauerCyclesOfData() {
 		Graph graph = new Graph("s1.txt");
 		graph.findSzwarcfiterLauerCycles();
+=======
+	// graph is not connected. Now we want to know how many connected components there are?
+	@Test
+	public void testIsConnected() {
+		Graph graph = new Graph("s1.txt");
+		System.out.println(graph.isConnected());
+	}
+	
+	// There are 6 connected components.
+	@Test
+	public void testGetConnectedComponents() {
+		Graph graph = new Graph("s1.txt");
+		graph.getConnectedComponents();
+	}
+	
+	@Test
+	public void testVisualizeGraph() {
+		Graph graph = new Graph("7-nodes-9-edges.txt");
+		graph.visualizeGraph();
+>>>>>>> Stashed changes
 	}
 	
 

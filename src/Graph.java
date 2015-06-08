@@ -1,3 +1,4 @@
+import java.awt.Dimension;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -8,8 +9,17 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
+import javax.swing.JScrollPane;
+
+import org.jgraph.JGraph;
+import org.jgrapht.alg.ConnectivityInspector;
 import org.jgrapht.alg.DijkstraShortestPath;
 import org.jgrapht.alg.cycle.JohnsonSimpleCycles;
+<<<<<<< Updated upstream
+=======
+import org.jgrapht.alg.cycle.SzwarcfiterLauerSimpleCycles;
+import org.jgrapht.ext.JGraphModelAdapter;
+>>>>>>> Stashed changes
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleDirectedWeightedGraph;
 
@@ -342,12 +352,42 @@ public class Graph {
 		return copiedGraph;
 	}
 	
+	public boolean isConnected() {
+		ConnectivityInspector conn = new ConnectivityInspector(graph);
+		return conn.isGraphConnected();
+	}
+	
+	public List<Set> getConnectedComponents() {
+		ConnectivityInspector conn = new ConnectivityInspector(graph);
+		List<Set> connectedComponents = conn.connectedSets();
+		for (int i = 0; i < connectedComponents.size(); i++) {
+			System.out.println("Connected Component " + (i + 1) + ": " + connectedComponents.get(i).size() + " nodes");
+			System.out.println(connectedComponents.get(i));
+			System.out.println();
+		}
+		System.out.println("There are " + connectedComponents.size() + " connected components.");
+		return connectedComponents;
+	}
+	
 	public void printPerturbedGraph() {
 		print(graph);
 	}
 	
 	public void printOriginalGraph() {
 		print(originalGraph);
+	}
+	
+	public void visualizeGraph() {
+		Dimension DEFAULT_SIZE = new Dimension(530, 320);
+		JGraphModelAdapter adapter = new JGraphModelAdapter(graph);
+		JGraph jgraph = new JGraph(adapter);
+		jgraph.setPreferredSize(DEFAULT_SIZE);
+		JScrollPane scrollPane = new JScrollPane(jgraph);
+	}
+	
+	public void renderJGraph() {
+		JGraph jgraph = new JGraph();
+		JScrollPane scrollPane = new JScrollPane(jgraph);
 	}
 	
 	public void print(SimpleDirectedWeightedGraph<Integer, DefaultWeightedEdge> graph) {
