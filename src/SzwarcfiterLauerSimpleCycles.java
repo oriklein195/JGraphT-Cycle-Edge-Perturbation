@@ -153,12 +153,12 @@ public class SzwarcfiterLauerSimpleCycles<V, E>
             System.out.println();
         }
 
-        /*for (V vertex : startVertices) {
+        for (V vertex : startVertices) {
             cycle(toI(vertex), 0);
-        }*/ // UNCOMMENT LATER
+        }
         
-        // Only find cycles of the first SCC.
-        cycle(toI(startVertices.get(3)), 0);
+        //Only find cycles of the first SCC.
+        //cycle(toI(startVertices.get(2)), 0);
 
         List<List<V>> result = cycles;
         clearState();

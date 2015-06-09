@@ -11,7 +11,6 @@ public class GraphTest {
 	@Test
 	public void testConstructor() {
 		Graph graph = new Graph("simple-square.txt");
-		graph.printPerturbedGraph();
 	}
 	
 	@Test
@@ -29,7 +28,6 @@ public class GraphTest {
 	@Test
 	public void testSquareClique() {
 		Graph graph = new Graph("square-clique.txt");
-		graph.printOriginalGraph();
 		graph.perturbEdges();
 	}
 	
@@ -65,23 +63,28 @@ public class GraphTest {
 	@Test
 	public void test7Nodes9Edges() {
 		Graph graph = new Graph("7-nodes-9-edges.txt");
-		graph.printOriginalGraph();
 		graph.perturbEdges();
 	}
 	
 	@Test
 	public void testCreateGraph() {
 		Graph graph = new Graph("s1.txt");
-		graph.printOriginalGraph();
 		graph.perturbEdges();
 	}
 	
-<<<<<<< Updated upstream
 	@Test
-	public void testSzwarcfiterLauerCyclesOfData() {
-		Graph graph = new Graph("s1.txt");
-		graph.findSzwarcfiterLauerCycles();
-=======
+	public void testSzwarcfiterLauerCyclesSCC2() {
+		Graph graph = new Graph("scc2.txt");
+		//graph.findSzwarcfiterLauerCycles();
+		graph.perturbEdges();
+	}
+	
+	@Test
+	public void testSzwarcfiterLauerCyclesSCC3() {
+		Graph graph = new Graph("scc3.txt");
+		graph.perturbEdges();
+	}
+
 	// graph is not connected. Now we want to know how many connected components there are?
 	@Test
 	public void testIsConnected() {
@@ -97,10 +100,9 @@ public class GraphTest {
 	}
 	
 	@Test
-	public void testVisualizeGraph() {
-		Graph graph = new Graph("7-nodes-9-edges.txt");
-		graph.visualizeGraph();
->>>>>>> Stashed changes
+	public void testCCInformation() {
+		Graph graph = new Graph("s1.txt");
+		graph.findSzwarcfiterLauerCycles();
 	}
 	
 

@@ -15,11 +15,6 @@ import org.jgraph.JGraph;
 import org.jgrapht.alg.ConnectivityInspector;
 import org.jgrapht.alg.DijkstraShortestPath;
 import org.jgrapht.alg.cycle.JohnsonSimpleCycles;
-<<<<<<< Updated upstream
-=======
-import org.jgrapht.alg.cycle.SzwarcfiterLauerSimpleCycles;
-import org.jgrapht.ext.JGraphModelAdapter;
->>>>>>> Stashed changes
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleDirectedWeightedGraph;
 
@@ -138,6 +133,7 @@ public class Graph {
 	
 	public List<List> findSzwarcfiterLauerCycles() {
 		SzwarcfiterLauerSimpleCycles slCycles = new SzwarcfiterLauerSimpleCycles(graph);
+		System.out.println("Finding cycles...");
 		List<List> cycles = slCycles.findSimpleCycles();
 		List<List> output = new ArrayList<List>();
 		System.out.println("Szwarcfiter Lauer cycles:");
@@ -165,13 +161,39 @@ public class Graph {
 			System.out.println("---------------------------------------------");
 			System.out.println("ITERATION: " + iteration);
 			totalCycleInconsistency = perturbIteration(cycles, edgeNumCyclesMap);
-			print(graph);
+			//print(graph);
 			System.out.println();
 			System.out.println("total cycle inconsistency: " + totalCycleInconsistency);
 		}
+		printFinalStatistics(cycles, iteration);
+		getPercentChange();
+	}
+	
+	private void printFinalStatistics(List<List> cycles, int iteration) {
+		printEdges();
+		int cycleNumber = 0;
+		for (List<Integer> cycle : cycles) {
+			cycleNumber++;
+			int cycleLength = cycle.size();
+			double cycleSum = 0.0;
+			
+			DefaultWeightedEdge edge;
+			// 1. Calculate the sum of the cycle edge weights.
+			for (int i = 0; i < cycleLength; i++) { // remember, i is the index, not the node value in the list
+				if (i == cycleLength - 1) {
+					// edge from i to 0 (wraps around)
+					edge = graph.getEdge(cycle.get(i), cycle.get(0));
+				} else {
+					// edge from i to i + 1
+					edge = graph.getEdge(cycle.get(i), cycle.get(i + 1));
+				}
+				cycleSum += graph.getEdgeWeight(edge);
+			}
+			System.out.println("Cycle " + cycleNumber + ": " + cycle + " - " + "cycle sum: " + cycleSum);
+		}
+		
 		System.out.println("---------------------------------------------");
 		System.out.println("Completed in " + iteration + " iterations.");
-		getPercentChange();
 	}
 	
 	public double perturbIteration(List<List> cycles, Map<Integer, Map<Integer, Integer>> edgeNumCyclesMap) {
@@ -204,7 +226,6 @@ public class Graph {
 				}
 				cycleSum += graph.getEdgeWeight(edge);
 			}
-			System.out.println("cycle sum: " + cycleSum);
 			totalCycleInconsistency += Math.abs(cycleSum);
 			
 			double averageEdgePerturbation = -1.0 * cycleSum / cycleLength; // MULTIPLIED BY SOME EPSILON
@@ -369,42 +390,17 @@ public class Graph {
 		return connectedComponents;
 	}
 	
-	public void printPerturbedGraph() {
-		print(graph);
-	}
-	
-	public void printOriginalGraph() {
-		print(originalGraph);
-	}
-	
-	public void visualizeGraph() {
-		Dimension DEFAULT_SIZE = new Dimension(530, 320);
-		JGraphModelAdapter adapter = new JGraphModelAdapter(graph);
-		JGraph jgraph = new JGraph(adapter);
-		jgraph.setPreferredSize(DEFAULT_SIZE);
-		JScrollPane scrollPane = new JScrollPane(jgraph);
-	}
-	
-	public void renderJGraph() {
-		JGraph jgraph = new JGraph();
-		JScrollPane scrollPane = new JScrollPane(jgraph);
-	}
-	
-	public void print(SimpleDirectedWeightedGraph<Integer, DefaultWeightedEdge> graph) {
-		printEdges(graph);
-		System.out.println();
-	}
-	
-	public void printEdges(SimpleDirectedWeightedGraph<Integer, DefaultWeightedEdge> graph) {
+	public void printEdges() {
 		Set<DefaultWeightedEdge> edges = graph.edgeSet();
-		System.out.println(" Edges:    Weights:");
+		System.out.println(" Edges:          Original Weights:      Perturbed Weights:");
 		for (DefaultWeightedEdge edge : edges) {
 			double weight = graph.getEdgeWeight(edge);
-			if (weight < 0.0) {
-				System.out.println(edge + "     " + weight);
-			} else {
-				System.out.println(edge + "      " + weight);
-			}
+			Integer sourceVertex = graph.getEdgeSource(edge);
+			Integer targetVertex = graph.getEdgeTarget(edge);
+			DefaultWeightedEdge originalEdge = originalGraph.getEdge(sourceVertex, targetVertex);
+			double originalWeight = originalGraph.getEdgeWeight(originalEdge);
+			System.out.println(edge + "           " + originalWeight + "              " + weight);
 		}
+		System.out.println();
 	}
 }
