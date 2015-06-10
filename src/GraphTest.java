@@ -1,8 +1,6 @@
 import static org.junit.Assert.*;
 
 import java.util.List;
-
-import org.jgrapht.graph.DefaultWeightedEdge;
 import org.junit.Test;
 
 

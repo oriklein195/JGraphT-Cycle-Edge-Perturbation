@@ -403,4 +403,9 @@ public class Graph {
 		}
 		System.out.println();
 	}
+	
+	public void testCycles() {
+		Cycles cycles = new Cycles(graph);
+		cycles.populateEdgeToIntegerMap();
+	}
 }
