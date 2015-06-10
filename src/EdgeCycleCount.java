@@ -1,14 +1,12 @@
-import org.jgrapht.graph.DefaultWeightedEdge;
-
 
 public class EdgeCycleCount implements Comparable<EdgeCycleCount> {
 	
 	private int cycleCount;
-	DefaultWeightedEdge defaultWeightedEdge;
+	CustomWeightedEdge CustomWeightedEdge;
 
-	public EdgeCycleCount(DefaultWeightedEdge defaultWeightedEdge) {
+	public EdgeCycleCount(CustomWeightedEdge CustomWeightedEdge) {
 		cycleCount = 0;
-		this.defaultWeightedEdge = defaultWeightedEdge;
+		this.CustomWeightedEdge = CustomWeightedEdge;
 	}
 	
 	public void increaseCycleCount() {
@@ -19,8 +17,8 @@ public class EdgeCycleCount implements Comparable<EdgeCycleCount> {
 		return cycleCount;
 	}
 	
-	public DefaultWeightedEdge getDefaultWeightedEdge() {
-		return defaultWeightedEdge;
+	public CustomWeightedEdge getCustomWeightedEdge() {
+		return CustomWeightedEdge;
 	}
 	
 	@Override
@@ -34,6 +32,6 @@ public class EdgeCycleCount implements Comparable<EdgeCycleCount> {
 	
 	@Override
 	public String toString() {
-		return defaultWeightedEdge + " - " + cycleCount;
+		return CustomWeightedEdge + " - " + cycleCount;
 	}
 }

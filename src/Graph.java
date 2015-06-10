@@ -15,7 +15,6 @@ import org.jgraph.JGraph;
 import org.jgrapht.alg.ConnectivityInspector;
 import org.jgrapht.alg.DijkstraShortestPath;
 import org.jgrapht.alg.cycle.JohnsonSimpleCycles;
-import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleDirectedWeightedGraph;
 
 /**
@@ -24,15 +23,15 @@ import org.jgrapht.graph.SimpleDirectedWeightedGraph;
  */
 public class Graph {
 
-	private SimpleDirectedWeightedGraph<Integer, DefaultWeightedEdge> graph; // graph that gets perturbed
-	private SimpleDirectedWeightedGraph<Integer, DefaultWeightedEdge> originalGraph;
+	private SimpleDirectedWeightedGraph<Integer, CustomWeightedEdge> graph; // graph that gets perturbed
+	private SimpleDirectedWeightedGraph<Integer, CustomWeightedEdge> originalGraph;
 	
 	/**
 	 * Constructor that takes an input .txt file and builds the graph using JGraphT's SimpleDirectedGraph class.
 	 * @param fileName
 	 */
 	public Graph(String fileName) {
-		graph = new SimpleDirectedWeightedGraph<Integer, DefaultWeightedEdge>(DefaultWeightedEdge.class);
+		graph = new SimpleDirectedWeightedGraph<Integer, CustomWeightedEdge>(CustomWeightedEdge.class);
 		if (fileName == null || fileName.length() == 0) {
 			throw new IllegalArgumentException();
 		}
@@ -80,7 +79,7 @@ public class Graph {
 	 * @param size the number of nodes that we want in the graph/clique
 	 */
 	public Graph(int size) {
-		graph = new SimpleDirectedWeightedGraph<Integer, DefaultWeightedEdge>(DefaultWeightedEdge.class);
+		graph = new SimpleDirectedWeightedGraph<Integer, CustomWeightedEdge>(CustomWeightedEdge.class);
 		createRandomCliquePerfectTriangles(size);
 		originalGraph = copyGraph(graph);
 		System.out.println("original graph");
@@ -102,8 +101,8 @@ public class Graph {
 			for (int k = j + 1; k < size; k++) {
 				// edge (0, 1) or (0, j)
 				// edge (0, 2) or (0, k)
-				DefaultWeightedEdge edge1 = graph.getEdge(0, j);
-				DefaultWeightedEdge edge2 = graph.getEdge(0, k);
+				CustomWeightedEdge edge1 = graph.getEdge(0, j);
+				CustomWeightedEdge edge2 = graph.getEdge(0, k);
 				double edge1Weight = graph.getEdgeWeight(edge1);
 				double edge2Weight = graph.getEdgeWeight(edge2);
 				// edge3 will go from j to k
@@ -177,7 +176,7 @@ public class Graph {
 			int cycleLength = cycle.size();
 			double cycleSum = 0.0;
 			
-			DefaultWeightedEdge edge;
+			CustomWeightedEdge edge;
 			// 1. Calculate the sum of the cycle edge weights.
 			for (int i = 0; i < cycleLength; i++) { // remember, i is the index, not the node value in the list
 				if (i == cycleLength - 1) {
@@ -214,7 +213,7 @@ public class Graph {
 			double cycleSum = 0.0;
 			//System.out.println(); // just to make it neater between cycles
 			//System.out.println(cycle);
-			DefaultWeightedEdge edge;
+			CustomWeightedEdge edge;
 			// 1. Calculate the sum of the cycle edge weights.
 			for (int i = 0; i < cycleLength; i++) { // remember, i is the index, not the node value in the list
 				if (i == cycleLength - 1) {
@@ -248,7 +247,7 @@ public class Graph {
 		}
 		// Update the original graph by perturbing each edge. Add the totalEdgePerturbationMap / edgeMapCyclesMap
 		// to every edge in the graph.
-		for (DefaultWeightedEdge edge : graph.edgeSet()) {
+		for (CustomWeightedEdge edge : graph.edgeSet()) {
 			double originalEdgeWeight = graph.getEdgeWeight(edge);
 			Integer edgeSource = graph.getEdgeSource(edge);
 			Integer edgeTarget = graph.getEdgeTarget(edge);
@@ -285,7 +284,7 @@ public class Graph {
 		Map<Integer, Map<Integer, Integer>> edgeNumCyclesMap = new HashMap<Integer, Map<Integer, Integer>>();
 		
 		for (List<Integer> cycle : cycles) {
-			DefaultWeightedEdge edge;
+			CustomWeightedEdge edge;
 			int cycleLength = cycle.size();
 			for (int j = 0; j < cycleLength; j++) {
 				if (j == cycleLength - 1) {
@@ -325,9 +324,9 @@ public class Graph {
 	 * edge weight from endNode to startNode.
 	 */
 	public void addEdge(int startNode, int endNode, double weight) {
-		DefaultWeightedEdge forwardEdge = graph.addEdge(startNode, endNode);
+		CustomWeightedEdge forwardEdge = graph.addEdge(startNode, endNode);
 		graph.setEdgeWeight(forwardEdge, weight);
-		DefaultWeightedEdge backwardEdge = graph.addEdge(endNode, startNode);
+		CustomWeightedEdge backwardEdge = graph.addEdge(endNode, startNode);
 		graph.setEdgeWeight(backwardEdge, -1.0 * weight);
 	}
 	
@@ -336,13 +335,13 @@ public class Graph {
 		// The only thing that has changed is the weight on each edge.
 		double totalEdgeDifference = 0.0; // magnitude of the total edge perturbations
 		double originalEdgeSum = 0.0; // magnitude of the total edge sum
-		for (DefaultWeightedEdge originalEdge : originalGraph.edgeSet()) {
+		for (CustomWeightedEdge originalEdge : originalGraph.edgeSet()) {
 			// get that same edge in the graph
 			double originalEdgeWeight = originalGraph.getEdgeWeight(originalEdge);
 			originalEdgeSum += Math.abs(originalEdgeWeight);
 			Integer sourceVertex = originalGraph.getEdgeSource(originalEdge);
 			Integer targetVertex = originalGraph.getEdgeTarget(originalEdge);
-			DefaultWeightedEdge perturbedEdge = graph.getEdge(sourceVertex, targetVertex);
+			CustomWeightedEdge perturbedEdge = graph.getEdge(sourceVertex, targetVertex);
 			double perturbedEdgeWeight = graph.getEdgeWeight(perturbedEdge);
 			totalEdgeDifference += Math.abs(originalEdgeWeight - perturbedEdgeWeight);
 		}
@@ -353,21 +352,21 @@ public class Graph {
 		return percentChange;
 	}
 	
-	public SimpleDirectedWeightedGraph<Integer, DefaultWeightedEdge> copyGraph(
-			SimpleDirectedWeightedGraph<Integer, DefaultWeightedEdge> originalGraph) {
-		SimpleDirectedWeightedGraph<Integer, DefaultWeightedEdge> copiedGraph = new SimpleDirectedWeightedGraph<Integer, 
-				DefaultWeightedEdge>(DefaultWeightedEdge.class);
+	public SimpleDirectedWeightedGraph<Integer, CustomWeightedEdge> copyGraph(
+			SimpleDirectedWeightedGraph<Integer, CustomWeightedEdge> originalGraph) {
+		SimpleDirectedWeightedGraph<Integer, CustomWeightedEdge> copiedGraph = new SimpleDirectedWeightedGraph<Integer, 
+				CustomWeightedEdge>(CustomWeightedEdge.class);
 		// copy all the originalGraph's vertices
 		for (Integer vertex : originalGraph.vertexSet()) {
 			copiedGraph.addVertex(vertex);
 		}
 		// copy all the originalGraph's edges
-		for (DefaultWeightedEdge edge : originalGraph.edgeSet()) {
+		for (CustomWeightedEdge edge : originalGraph.edgeSet()) {
 			// don't have it pass/copy edge by reference, pass by value instead!
 			Integer sourceVertex = originalGraph.getEdgeSource(edge);
 			Integer targetVertex = originalGraph.getEdgeTarget(edge);
 			double edgeWeight = originalGraph.getEdgeWeight(edge);
-			DefaultWeightedEdge copiedEdge = copiedGraph.addEdge(sourceVertex, targetVertex);
+			CustomWeightedEdge copiedEdge = copiedGraph.addEdge(sourceVertex, targetVertex);
 			copiedGraph.setEdgeWeight(copiedEdge, edgeWeight);
 		}
 		return copiedGraph;
@@ -391,13 +390,13 @@ public class Graph {
 	}
 	
 	public void printEdges() {
-		Set<DefaultWeightedEdge> edges = graph.edgeSet();
+		Set<CustomWeightedEdge> edges = graph.edgeSet();
 		System.out.println(" Edges:          Original Weights:      Perturbed Weights:");
-		for (DefaultWeightedEdge edge : edges) {
+		for (CustomWeightedEdge edge : edges) {
 			double weight = graph.getEdgeWeight(edge);
 			Integer sourceVertex = graph.getEdgeSource(edge);
 			Integer targetVertex = graph.getEdgeTarget(edge);
-			DefaultWeightedEdge originalEdge = originalGraph.getEdge(sourceVertex, targetVertex);
+			CustomWeightedEdge originalEdge = originalGraph.getEdge(sourceVertex, targetVertex);
 			double originalWeight = originalGraph.getEdgeWeight(originalEdge);
 			System.out.println(edge + "           " + originalWeight + "              " + weight);
 		}
