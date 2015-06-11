@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
+import java.util.Random;
 import java.util.Set;
 
 import org.jgrapht.graph.SimpleDirectedWeightedGraph;
@@ -15,81 +16,233 @@ public class Cycles {
 	private Map<CustomWeightedEdge, Integer> edgeToIntegerMap;
 	private Map<Integer, CustomWeightedEdge> integerToEdgeMap;
 	private SimpleDirectedWeightedGraph<Integer, CustomWeightedEdge> graph;
-	private PriorityQueue<EdgeCycleCount> pq;
+	private PriorityQueue<CustomWeightedEdge> pq;
+	private Map<Integer, BitSet> nodeToBitSet;
+	private List<BitSet> cycles;
 	
+	// Constructor for Cycles class.
 	public Cycles(SimpleDirectedWeightedGraph<Integer, CustomWeightedEdge> graph) {
 		edgeToIntegerMap = new HashMap<CustomWeightedEdge, Integer>();
 		integerToEdgeMap = new HashMap<Integer, CustomWeightedEdge>();
-		pq = new PriorityQueue<EdgeCycleCount>();
+		pq = new PriorityQueue<CustomWeightedEdge>();
+		nodeToBitSet = new HashMap<Integer, BitSet>();
 		this.graph = graph;
+		cycles = new ArrayList<BitSet>();
+		populateEdgeToIntegerMap();
 	}
 	
-	public List<BitSet> getCycles() {
-		return new ArrayList<BitSet>();
+	public List<BitSet> getCycles(int minCycleCount) {
+		int iteration = 0;
+		int numRepeatedCycles = 0;
+		while (pq.peek().getCycleCount() < minCycleCount) {
+			iteration++;
+			/*if (iteration == 500) {
+				break;
+			}*/
+			System.out.println("ITERATION: " + iteration);
+			BitSet newCycle = getOneCycle();
+			System.out.println(pq);
+			System.out.println("cycles: " + cycles.size());
+			if (newCycle.isEmpty()) {
+				System.out.println("Got stuck in a corner. Surrounded by discovered nodes.");
+			} else if (!cycles.contains(newCycle)) { // if this newly found cycle isn't already in the list of cycles
+				cycles.add(newCycle);
+			} else {
+				System.out.println("Ignored repeat cycle.");
+				numRepeatedCycles++;
+			}
+			System.out.println();
+		}
+		System.out.println("------------------------------------------------------------------------------------");
+		System.out.println("Priority Queue: " + pq);
+		System.out.println("Cycles: " + cycles);
+		System.out.println("Each edge is part of at least " + minCycleCount + " cycles.");
+		System.out.println("We found " + cycles.size() + " cycles.");
+		System.out.println("There were " + numRepeatedCycles + " repeated cycles.");
+		return cycles;
 	}
 	
-	public void populateEdgeToIntegerMap() {
+	// Once we've found the cycle, for each bit set to true in the output, increment the corresponding edge's 
+	// cycle count *IF* it is a new cycle.
+	private void updatePQCycleCount(BitSet output) {
+		if (!cycles.contains(output)) {
+			for (int i = output.nextSetBit(0); i >= 0; i = output.nextSetBit(i + 1)) {
+				CustomWeightedEdge edge = integerToEdgeMap.get(i);
+				pq.remove(edge); // remove, update, and add to the priority queue each edge in the discovered cycle
+				edge.increaseCycleCount();
+				pq.add(edge);
+			}
+		}
+	}
+	
+	// Private helper method for the constructor, maps each edge to its assigned edge number
+	private void populateEdgeToIntegerMap() {
 		int edgeInteger = 0;
 		for (CustomWeightedEdge edge : graph.edgeSet()) {
 			edgeToIntegerMap.put(edge, edgeInteger);
 			integerToEdgeMap.put(edgeInteger, edge);
-			EdgeCycleCount edgeCycle = new EdgeCycleCount(edge);
-			pq.add(edgeCycle);
+			pq.add(edge);
 			edgeInteger++;
-			System.out.println(edge.getCycleCount());
 		}
-		System.out.println(pq);
-		//System.out.println(edgeToIntegerMap);
-		//System.out.println(integerToEdgeMap);
 	}
 	
-	public BitSet getCycleIteration() {
+	public BitSet getOneCycle() {
 		BitSet output = new BitSet(graph.edgeSet().size()); // this is the number of bits in the BitSet
 		Set<Integer> uDiscovered = new HashSet<Integer>(); // nodes that have been discovered while searching BFS from u
 		Set<Integer> vDiscovered = new HashSet<Integer>(); // nodes that have been discovered while searching BFS from v
 		
-		CustomWeightedEdge edgePQ = pq.poll().getCustomWeightedEdge(); // edge with the min number of cycles at this point
+		CustomWeightedEdge edgePQ = pq.poll(); // edge with the min number of cycles at this point
+		System.out.println("edgePQ: " + edgePQ);
+		
+		BitSet uBitSet = new BitSet(graph.edgeSet().size()); // set of edges traversed on u's side
+		BitSet vBitSet = new BitSet(graph.edgeSet().size()); // set of edges traversed on v's side
+		
 		Integer u = graph.getEdgeSource(edgePQ);
+		//System.out.println("u: " + u);
 		uDiscovered.add(u);
+		nodeToBitSet.put(u, (BitSet) uBitSet.clone());
 		Integer v = graph.getEdgeTarget(edgePQ);
+		//System.out.println("v: " + v);
 		vDiscovered.add(v);
-		boolean foundCycle = false;
-		while (foundCycle == false) {
+		nodeToBitSet.put(v, (BitSet) vBitSet.clone());
+		//System.out.println("uDiscovered: " + uDiscovered);
+		//System.out.println("vDiscovered: " + vDiscovered);
+		//System.out.println(nodeToBitSet);
+		
+		while (true) {
 			// get edges incident on u
-			Set<CustomWeightedEdge> uNeighbors = graph.outgoingEdgesOf(u);
+			Set<CustomWeightedEdge> uNeighbors = graph.incomingEdgesOf(u);
+			//System.out.println("uNeighbors: " + uNeighbors);
 			// get the next edge to traverse with BFS (and thus also the next node)
-			
 			// get edges incident on v
 			Set<CustomWeightedEdge> vNeighbors = graph.outgoingEdgesOf(v);
-		}
-		// Once we've found the cycle, mark all the edges that are in this cycle in the BitSet output as true (1). All the 
-		// other bits are false (0).
-		
-		return output;
-	}
-	
-	/**
-	 * Helper method that picks the best neighbor to explore in the next iteration of BFS. Finds the edge with the lowest 
-	 * cycle count whose target node also hasn't been discovered yet. If the target node belongs to the discovered set
-	 * of the opposite side (u when considering v, or v when considering u), then this edge is preferred.
-	 */
-	private void pickBestNeighbor(boolean isU, Set<CustomWeightedEdge> uNeighbors, 
-			Set<CustomWeightedEdge> vNeighbors, Set<Integer> uDiscovered, Set<Integer> vDiscovered) {
-		if (isU) {
-			// iterate through uNeighbors
+			//System.out.println("vNeighbors: " + vNeighbors);
+			
+			//System.out.println("u: " + u);
+			// PICK BEST NEIGHBOR FOR U. (Look at incoming edges)
+			int uMinCycleCount = 10000000;
+			//CustomWeightedEdge uMinCycleCountEdge = new CustomWeightedEdge();
+			List<CustomWeightedEdge> uMinCycleCountEdges = new ArrayList<CustomWeightedEdge>();
 			for (CustomWeightedEdge edge : uNeighbors) {
-				// if the target of the edge is in vNeighbors
-				System.out.println("cycle count: " + edge.getCycleCount());
-				Integer edgeTarget = graph.getEdgeTarget(edge);
-				if (vDiscovered.contains(edgeTarget)) { // if this is an edge connecting to the opposite side
-					// we've found a cycle, now need to gather the edges that are in the cycle
+				Integer edgeSource = graph.getEdgeSource(edge);
+				System.out.println("u: " + edge);
+				if (uDiscovered.contains(edgeSource) || graph.inDegreeOf(edgeSource) == 1) { // OR if edgeSource inDegree = 1
+					System.out.println("Edge has been discovered already by u.");
+					continue;
+				}
+				// if the target of the edge is in uNeighbors
+				if (vDiscovered.contains(edgeSource)) { // if this is an edge connecting to the opposite side
+					// we've found a cycle, now need to gather the edges that are in the cycles
+					// OR the bitsets for each side + edgeInteger for edgePQ + edgeInteger for crossEdge edge
+					output.or(uBitSet);
+					output.or(nodeToBitSet.get(edgeSource));
+					output.set(edgeToIntegerMap.get(edgePQ));
+					output.set(edgeToIntegerMap.get(edge));
+					if (output.cardinality() > 2) {
+						System.out.println("Found a cycle for u with length 3 or greater!");
+						System.out.println(output);
+						updatePQCycleCount(output);
+						return output; // exit the while loop
+					} else {
+						// reset the output
+						output.clear();
+					}
 				} else {
-					// return edge with the lowest cycle count
-					int minCycleCount = 10000000;
+					// return edge with the lowest cycle count. If there's a tie, *RANDOMLY* choose an edge.
+					if (edge.getCycleCount() < uMinCycleCount) { // reset the uMinCycleCountEdges, update uMinCycleCount
+						uMinCycleCount = edge.getCycleCount();
+						uMinCycleCountEdges.clear();
+						uMinCycleCountEdges.add(edge);
+					} else if (edge.getCycleCount() == uMinCycleCount) {
+						uMinCycleCountEdges.add(edge);
+					}
 				}
 			}
-		} else {
+			//if (graph.getEdgeSource(uMinCycleCountEdge) != null && graph.getEdgeTarget(uMinCycleCountEdge) != null) {'
+			if (uMinCycleCountEdges.size() > 0) { // if there exists at least one edge in uMinCycleCountEdges
+				// randomly choose one of the edges in uMinCycleCountEdges
+				int uRandomIndex = new Random().nextInt(uMinCycleCountEdges.size());
+				CustomWeightedEdge uMinCycleCountEdge = uMinCycleCountEdges.get(uRandomIndex);
+				Integer uDiscoveredNode = graph.getEdgeSource(uMinCycleCountEdge);
+				System.out.println("Chosen u edge: " + uMinCycleCountEdge);
+				uDiscovered.add(uDiscoveredNode);
+				uBitSet.set(edgeToIntegerMap.get(uMinCycleCountEdge));
+				u = uDiscoveredNode;
+				nodeToBitSet.put(u, (BitSet) uBitSet.clone());
+			} else {
+				//System.out.println("Edge is null");
+				pq.add(edgePQ); // ** KEY: hopefully this will delay this null edge and it will be part of another cycle
+				return new BitSet(); // return an empty BitSet, which will be ignored in getCycles().
+			}
 			
+			//System.out.println("v: " + v);
+			// PICK BEST NEIGHBOR FOR V. (Look at outgoing edges)
+			int vMinCycleCount = 10000000;
+			List<CustomWeightedEdge> vMinCycleCountEdges = new ArrayList<CustomWeightedEdge>();
+			for (CustomWeightedEdge edge : vNeighbors) {
+				System.out.println("v: " + edge);
+				Integer edgeTarget = graph.getEdgeTarget(edge);
+				if (vDiscovered.contains(edgeTarget) || graph.inDegreeOf(edgeTarget) == 1) {
+					System.out.println("Edge has been discovered already by v.");
+					continue;
+				}
+				// if the target of the edge is in uNeighbors
+				if (uDiscovered.contains(edgeTarget)) { // if this is an edge connecting to the opposite side
+					// we've found a cycle, now need to gather the edges that are in the cycles
+					// OR the bitsets for each side + edgeInteger for edgePQ + edgeInteger for crossEdge edge
+					output.or(vBitSet);
+					output.or(nodeToBitSet.get(edgeTarget));
+					output.set(edgeToIntegerMap.get(edgePQ));
+					output.set(edgeToIntegerMap.get(edge));
+					//System.out.println("output: " + output);
+					if (output.cardinality() > 2) {
+						System.out.println("Found a cycle for v with length 3 or greater!");
+						System.out.println(output);
+						updatePQCycleCount(output);
+						return output; // exit the while loop
+					} else {
+						// reset the output
+						output.clear();
+						//System.out.println("output: " + output);
+					}
+				} else {
+					// return edge with the lowest cycle count
+					if (edge.getCycleCount() < vMinCycleCount) { // reset the vMinCycleCountEdges, update vMinCycleCount
+						vMinCycleCount = edge.getCycleCount();
+						vMinCycleCountEdges.clear();
+						vMinCycleCountEdges.add(edge);
+					} else if (edge.getCycleCount() == vMinCycleCount) {
+						vMinCycleCountEdges.add(edge);
+					}
+				}
+			}
+			//if (graph.getEdgeSource(vMinCycleCountEdge) != null && graph.getEdgeTarget(vMinCycleCountEdge) != null) {
+			if (vMinCycleCountEdges.size() > 0) { // if there exists at least one edge in vMinCycleCountEdges
+				// randomly choose one of the edges in vMinCycleCountEdges
+				int vRandomIndex = new Random().nextInt(vMinCycleCountEdges.size());
+				CustomWeightedEdge vMinCycleCountEdge = vMinCycleCountEdges.get(vRandomIndex);
+				Integer vDiscoveredNode = graph.getEdgeTarget(vMinCycleCountEdge);
+				System.out.println("Chosen v edge: " + vMinCycleCountEdge);
+				vDiscovered.add(vDiscoveredNode);
+				vBitSet.set(edgeToIntegerMap.get(vMinCycleCountEdge));
+				v = vDiscoveredNode;
+				nodeToBitSet.put(v, (BitSet) vBitSet.clone());
+			} else {
+				//System.out.println("Edge is null.");
+				pq.add(edgePQ);
+				return new BitSet(); // return an empty BitSet, which will be ignored in getCycles().
+			}
 		}
+	}
+	
+	public boolean verifyCycles(List<BitSet> cycles) {
+		for (BitSet cycle : cycles) {
+			for (int i = cycle.nextSetBit(0); i >= 0; i = cycle.nextSetBit(i + 1)) {
+				CustomWeightedEdge edge = integerToEdgeMap.get(i);
+				System.out.println(edge);
+			}
+			System.out.println();
+		}
+		return true;
 	}
 }

@@ -103,5 +103,22 @@ public class GraphTest {
 		graph.findSzwarcfiterLauerCycles();
 	}
 	
+	@Test
+	public void testPrintVertexDegreesSCC4() {
+		Graph graph = new Graph("scc4.txt");
+		graph.printVertexDegrees();
+	}
+	
+	@Test
+	public void testPrintVertexDegreesSCC5() {
+		Graph graph = new Graph("scc5.txt");
+		graph.printVertexDegrees();
+	}
+	
+	@Test
+	public void testPrintVertexDegreesSCC6() {
+		Graph graph = new Graph("scc6.txt");
+		graph.printVertexDegrees();
+	}
 
 }

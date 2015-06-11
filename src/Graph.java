@@ -3,6 +3,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -403,8 +404,31 @@ public class Graph {
 		System.out.println();
 	}
 	
-	public void testCycles() {
+	public void printVertexDegrees() {
+		for (Integer vertex : graph.vertexSet()) {
+			List<Integer> neighbors = new ArrayList<Integer>();
+			for (CustomWeightedEdge edge : graph.edgesOf(vertex)) {
+				if (graph.getEdgeSource(edge).equals(vertex)) {
+					neighbors.add(graph.getEdgeTarget(edge));
+				}
+			}
+			System.out.println("Node: " + vertex + "    Degree: " + graph.outDegreeOf(vertex) + "   " + neighbors);
+		}
+	}
+	
+	public void getOneCycle() {
 		Cycles cycles = new Cycles(graph);
-		cycles.populateEdgeToIntegerMap();
+		cycles.getOneCycle();
+	}
+	
+	public List<BitSet> getCycles(int minCycleCount) {
+		Cycles c = new Cycles(graph);
+		List<BitSet> cycles = c.getCycles(minCycleCount);
+		return cycles;
+	}
+	
+	public boolean verifyCycles(List<BitSet> cycles) {
+		Cycles c = new Cycles(graph);
+		return c.verifyCycles(cycles);
 	}
 }
