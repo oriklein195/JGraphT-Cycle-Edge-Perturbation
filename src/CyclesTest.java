@@ -42,7 +42,7 @@ public class CyclesTest {
 	@Test
 	public void testCyclesSCC5() {
 		Graph graph = new Graph("scc5.txt");
-		List<BitSet> cycles = graph.getCycles(2);
+		List<BitSet> cycles = graph.getCycles(2); // edges (132 : 140) and (140 : 132) are problems, no cycles found
 		//graph.verifyCycles(cycles);
 	}
 	
@@ -50,6 +50,7 @@ public class CyclesTest {
 	public void testCyclesSCC6() {
 		Graph graph = new Graph("scc6.txt");
 		graph.getCycles(3); // edges (187 : 545) and (187 : 341) are only in 2 cycles
+		// edge (187 : 124) is only in 2 cycles
 	}
 	
 

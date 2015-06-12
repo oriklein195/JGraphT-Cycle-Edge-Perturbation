@@ -57,6 +57,18 @@ public class Cycles {
 		System.out.println("Priority Queue: " + pq);
 		System.out.println("Cycles: " + cycles);
 		System.out.println("Each edge is part of at least " + minCycleCount + " cycles.");
+		int cycleSum = 0;
+		int maxCycleLength = 0;
+		for (BitSet cycle : cycles) {
+			cycleSum += cycle.cardinality();
+			if (cycle.cardinality() > maxCycleLength) {
+				maxCycleLength = cycle.cardinality();
+			}
+		}
+		double averageCycleLength = (double) cycleSum / (double) cycles.size();
+		System.out.println(cycleSum);
+		System.out.println("The average cycle length is " + averageCycleLength + ".");
+		System.out.println("The max cycle length is " + maxCycleLength);
 		System.out.println("We found " + cycles.size() + " cycles.");
 		System.out.println("There were " + numRepeatedCycles + " repeated cycles.");
 		return cycles;
