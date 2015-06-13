@@ -23,7 +23,7 @@ public class CyclesTest {
 	@Test
 	public void testCyclesSCC2() {
 		Graph graph = new Graph("scc2.txt");
-		graph.getCycles(2);
+		graph.getCycles(4); // M = 4 is the maximum for a 4-clique b/c each edge can only be a part of 4 cycles.
 	}
 	
 	@Test
@@ -51,6 +51,13 @@ public class CyclesTest {
 		Graph graph = new Graph("scc6.txt");
 		graph.getCycles(3); // edges (187 : 545) and (187 : 341) are only in 2 cycles
 		// edge (187 : 124) is only in 2 cycles
+	}
+	
+	
+	@Test
+	public void test3Clique() {
+		Graph graph = new Graph("3-clique.txt");
+		graph.getCycles(1); // M = 1 is the maximum for a 3-clique (triangle) b/c each edge can only be a part of 1 cycle.
 	}
 	
 

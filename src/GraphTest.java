@@ -120,5 +120,41 @@ public class GraphTest {
 		Graph graph = new Graph("scc6.txt");
 		graph.printVertexDegrees();
 	}
+	
+	@Test
+	public void testFindBridgesSCC1() {
+		Graph graph = new Graph("scc1.txt");
+		graph.findBridges();
+	}
+	
+	@Test
+	public void testFindBridgesSCC2() {
+		Graph graph = new Graph("scc2.txt");
+		graph.findBridges();
+	}
+	
+	@Test
+	public void testFindBridgesSCC3() {
+		Graph graph = new Graph("scc3.txt");
+		graph.findBridges();
+	}
+	
+	@Test
+	public void testFindBridgesSCC4() {
+		Graph graph = new Graph("scc4.txt");
+		graph.findBridges();
+	}
+	
+	@Test
+	public void testFindBridgesSCC5() {
+		Graph graph = new Graph("scc5.txt");
+		graph.findBridges();
+	}
+	
+	@Test
+	public void testFindBridgesSCC6() {
+		Graph graph = new Graph("scc6.txt");
+		graph.findBridges();
+	}
 
 }

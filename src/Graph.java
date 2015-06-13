@@ -431,4 +431,31 @@ public class Graph {
 		Cycles c = new Cycles(graph);
 		return c.verifyCycles(cycles);
 	}
+	
+	public List<CustomWeightedEdge> findBridges() {
+		List<CustomWeightedEdge> bridges = new ArrayList<CustomWeightedEdge>();
+		// make a copy of the graph
+		SimpleDirectedWeightedGraph<Integer, CustomWeightedEdge> graphCopy = copyGraph(graph);
+		Set<CustomWeightedEdge> edges = graph.edgeSet();
+		for (CustomWeightedEdge edge : edges) {
+			Integer sourceVertex = graphCopy.getEdgeSource(edge);
+			Integer targetVertex = graphCopy.getEdgeTarget(edge);
+			// remove the edges of the graphCopy one by one
+			graphCopy.removeEdge(sourceVertex, targetVertex);
+			graphCopy.removeEdge(targetVertex, sourceVertex);
+			// get connected components
+			ConnectivityInspector conn = new ConnectivityInspector(graphCopy);
+			List<Set> connectedComponents = conn.connectedSets();
+			if (connectedComponents.size() == 2) { // if the removal of the edge created 2 connected components
+				bridges.add(edge);
+			}
+			// add the removed edge back
+			graphCopy.addEdge(sourceVertex, targetVertex, edge);
+			graphCopy.addEdge(targetVertex, sourceVertex, edge);
+		}
+		System.out.println("Bridges: " + bridges);
+		return bridges;
+	}
+	
+	
 }
