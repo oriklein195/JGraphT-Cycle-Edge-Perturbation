@@ -29,6 +29,11 @@ public class DiscreteMathTest {
 	}
 	
 	@Test
+	public void testNumCyclesIn5Clique() {
+		DiscreteMath.numCyclesInClique(5);
+	}
+	
+	@Test
 	public void testNumCyclesIn50Clique() {
 		DiscreteMath.numCyclesInClique(50);
 	}

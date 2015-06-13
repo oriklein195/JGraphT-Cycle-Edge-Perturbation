@@ -54,11 +54,14 @@ public class CyclesTest {
 	}
 	
 	
+<<<<<<< Updated upstream
 	@Test
 	public void test3Clique() {
 		Graph graph = new Graph("3-clique.txt");
 		graph.getCycles(1); // M = 1 is the maximum for a 3-clique (triangle) b/c each edge can only be a part of 1 cycle.
 	}
+=======
+>>>>>>> Stashed changes
 	
 
 }
