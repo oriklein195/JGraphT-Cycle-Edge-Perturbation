@@ -42,7 +42,11 @@ public class Cycles {
 				break;
 			}*/
 			System.out.println("ITERATION: " + iteration);
-			BitSet newCycle = getOneCycle();
+			// poll from the PQ
+			CustomWeightedEdge edgePQ = pq.poll(); // edge with the min number of cycles at this point
+			BitSet newCycle = getOneCycle(edgePQ);
+			// add back edgePQ to the PQ.
+			pq.add(edgePQ);
 			System.out.println("Priority Queue: " + pq);
 			System.out.println("cycles: " + cycles.size());
 			if (newCycle.isEmpty()) {
@@ -91,18 +95,18 @@ public class Cycles {
 	private void updatePQCycleCount(BitSet cycle) { // already checked that cycle is not already in cycles
 		for (int i = cycle.nextSetBit(0); i >= 0; i = cycle.nextSetBit(i + 1)) {
 			CustomWeightedEdge edge = integerToEdgeMap.get(i);
-			pq.remove(edge); // remove, update, and add to the priority queue each edge in the discovered cycle
 			edge.increaseCycleCount();
-			pq.add(edge);
+			if (pq.remove(edge)) { // remove, update, and add to the priority queue each edge in the discovered cycle
+				pq.add(edge);
+			}
 		}
 	}
 	
-	public BitSet getOneCycle() {
+	public BitSet getOneCycle(CustomWeightedEdge edgePQ) {
 		BitSet output = new BitSet(graph.edgeSet().size()); // this is the number of bits in the BitSet
 		Set<Integer> uDiscovered = new HashSet<Integer>(); // nodes that have been discovered while searching BFS from u
 		Set<Integer> vDiscovered = new HashSet<Integer>(); // nodes that have been discovered while searching BFS from v
 		
-		CustomWeightedEdge edgePQ = pq.peek(); // edge with the min number of cycles at this point
 		System.out.println("edgePQ: " + edgePQ);
 		
 		BitSet uBitSet = new BitSet(graph.edgeSet().size()); // set of edges traversed on u's side

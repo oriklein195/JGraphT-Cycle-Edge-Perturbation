@@ -7,18 +7,6 @@ import org.junit.Test;
 
 
 public class CyclesTest {
-
-	@Test
-	public void testCycles() {
-		Graph graph = new Graph("scc2.txt");
-		graph.getOneCycle();
-	}
-	
-	@Test
-	public void testCyclesCustomGraph() {
-		Graph graph = new Graph("5-nodes-5-edges.txt");
-		graph.getOneCycle();
-	}
 	
 	@Test
 	public void testCyclesSCC2() {
@@ -54,14 +42,23 @@ public class CyclesTest {
 	}
 	
 	
-<<<<<<< Updated upstream
 	@Test
 	public void test3Clique() {
 		Graph graph = new Graph("3-clique.txt");
 		graph.getCycles(1); // M = 1 is the maximum for a 3-clique (triangle) b/c each edge can only be a part of 1 cycle.
 	}
-=======
->>>>>>> Stashed changes
+	
+	@Test
+	public void test4Clique() {
+		Graph graph = new Graph("scc4.txt");
+		graph.getCycles(3);
+	}
+	
+	@Test
+	public void test5Clique() {
+		Graph graph = new Graph("5-clique.txt");
+		graph.getCycles(15); // Interesting, M = 15 finds all 37 cycles (74 directed cycles).
+	}
 	
 
 }

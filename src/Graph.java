@@ -416,11 +416,6 @@ public class Graph {
 		}
 	}
 	
-	public void getOneCycle() {
-		Cycles cycles = new Cycles(graph);
-		cycles.getOneCycle();
-	}
-	
 	public List<BitSet> getCycles(int minCycleCount) {
 		Cycles c = new Cycles(graph);
 		List<BitSet> cycles = c.getCycles(minCycleCount);
