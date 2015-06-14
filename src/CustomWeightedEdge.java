@@ -8,17 +8,27 @@ public class CustomWeightedEdge extends DefaultWeightedEdge implements Comparabl
 
 	private static final long serialVersionUID = 1L;
 	private int cycleCount;
+	private int stuckCount;
 	
 	public CustomWeightedEdge() {
 		cycleCount = 0;
+		stuckCount = 0;
 	}
 	
 	public int getCycleCount() {
 		return cycleCount;
 	}
 	
-	public void increaseCycleCount() {
+	public void incrementCycleCount() {
 		cycleCount++;
+	}
+	
+	public int getStuckCount() {
+		return stuckCount;
+	}
+	
+	public void incrementStuckCount() {
+		stuckCount++;
 	}
 	
 	/**

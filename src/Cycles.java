@@ -19,6 +19,8 @@ public class Cycles {
 	private PriorityQueue<CustomWeightedEdge> pq;
 	private Map<Integer, BitSet> nodeToBitSet;
 	private List<BitSet> cycles;
+	private List<CustomWeightedEdge> removedEdges;
+	private int numRepeatedCycles;
 	
 	// Constructor for Cycles class.
 	public Cycles(SimpleDirectedWeightedGraph<Integer, CustomWeightedEdge> graph) {
@@ -28,34 +30,40 @@ public class Cycles {
 		nodeToBitSet = new HashMap<Integer, BitSet>();
 		this.graph = graph;
 		cycles = new ArrayList<BitSet>();
+		removedEdges = new ArrayList<CustomWeightedEdge>();
+		numRepeatedCycles = 0;
 		populateEdgeToIntegerMap();
 	}
 	
 	public List<BitSet> getCycles(int minCycleCount) {
 		int iteration = 0;
-		int numRepeatedCycles = 0;
 		System.out.println("integerToEdgeMap: " + integerToEdgeMap);
 		System.out.println();
 		while (pq.peek().getCycleCount() < minCycleCount) {
 			iteration++;
-			/*if (iteration == 20) {
+			/*if (iteration == 2000) {
 				break;
 			}*/
 			System.out.println("ITERATION: " + iteration);
 			// poll from the PQ
 			CustomWeightedEdge edgePQ = pq.poll(); // edge with the min number of cycles at this point
+			System.out.println("edgePQ: " + edgePQ);
+			if (edgePQ.getStuckCount() > 25) {
+				// Don't find the cycle and remove the edge
+				System.out.println("Removed edgePQ from PQ b/c stuckCount > 10.");
+				System.out.println();
+				removedEdges.add(edgePQ);
+				continue;
+			}
 			BitSet newCycle = getOneCycle(edgePQ);
 			// add back edgePQ to the PQ.
 			pq.add(edgePQ);
-			System.out.println("Priority Queue: " + pq);
+			//System.out.println("Priority Queue: " + pq);
 			System.out.println("cycles: " + cycles.size());
 			if (newCycle.isEmpty()) {
 				System.out.println("Got stuck in a corner. Surrounded by discovered nodes.");
 			} else if (!cycles.contains(newCycle)) { // if this newly found cycle isn't already in the list of cycles
 				cycles.add(newCycle);
-			} else {
-				System.out.println("Ignored repeat cycle.");
-				numRepeatedCycles++;
 			}
 			System.out.println();
 		}
@@ -74,8 +82,10 @@ public class Cycles {
 		double averageCycleLength = (double) cycleSum / (double) cycles.size();
 		System.out.println("The average cycle length is " + averageCycleLength + ".");
 		System.out.println("The max cycle length is " + maxCycleLength);
-		System.out.println("We found " + cycles.size() + " cycles.");
-		System.out.println("There were " + numRepeatedCycles + " repeated cycles.");
+		System.out.println("Found " + cycles.size() + " cycles.");
+		System.out.println("Encountered " + numRepeatedCycles + " repeated cycles." + " Algorithm continued to find larger "
+				+ "cycles.");
+		System.out.println("Removed " + removedEdges.size() + " edges: " + removedEdges);
 		return cycles;
 	}
 	
@@ -95,7 +105,7 @@ public class Cycles {
 	private void updatePQCycleCount(BitSet cycle) { // already checked that cycle is not already in cycles
 		for (int i = cycle.nextSetBit(0); i >= 0; i = cycle.nextSetBit(i + 1)) {
 			CustomWeightedEdge edge = integerToEdgeMap.get(i);
-			edge.increaseCycleCount();
+			edge.incrementCycleCount();
 			if (pq.remove(edge)) { // remove, update, and add to the priority queue each edge in the discovered cycle
 				pq.add(edge);
 			}
@@ -106,8 +116,6 @@ public class Cycles {
 		BitSet output = new BitSet(graph.edgeSet().size()); // this is the number of bits in the BitSet
 		Set<Integer> uDiscovered = new HashSet<Integer>(); // nodes that have been discovered while searching BFS from u
 		Set<Integer> vDiscovered = new HashSet<Integer>(); // nodes that have been discovered while searching BFS from v
-		
-		System.out.println("edgePQ: " + edgePQ);
 		
 		BitSet uBitSet = new BitSet(graph.edgeSet().size()); // set of edges traversed on u's side
 		BitSet vBitSet = new BitSet(graph.edgeSet().size()); // set of edges traversed on v's side
@@ -122,7 +130,7 @@ public class Cycles {
 		nodeToBitSet.put(v, (BitSet) vBitSet.clone());
 		System.out.println("uDiscovered: " + uDiscovered);
 		System.out.println("vDiscovered: " + vDiscovered);
-		System.out.println("nodeToBitSet: " + nodeToBitSet);
+		//System.out.println("nodeToBitSet: " + nodeToBitSet);
 		
 		while (true) {
 			// get edges incident on u
@@ -159,6 +167,7 @@ public class Cycles {
 							updatePQCycleCount(output);
 							return output; // exit the while loop
 						} else { // if cycle has already been found
+							numRepeatedCycles++;
 							System.out.println("Duplicate cycle. Continuing.");
 							output.clear();
 							continue;
@@ -169,7 +178,8 @@ public class Cycles {
 					}
 				} else {
 					// return edge with the lowest cycle count. If there's a tie, *RANDOMLY* choose an edge.
-					if (edge.getCycleCount() < uMinCycleCount) { // reset the uMinCycleCountEdges, update uMinCycleCount
+					if (edge.getCycleCount() < uMinCycleCount && !removedEdges.contains(edge)) { // edge hasn't been removed
+						// reset the uMinCycleCountEdges, update uMinCycleCount
 						uMinCycleCount = edge.getCycleCount();
 						uMinCycleCountEdges.clear();
 						uMinCycleCountEdges.add(edge);
@@ -190,7 +200,7 @@ public class Cycles {
 				u = uDiscoveredNode;
 				nodeToBitSet.put(u, (BitSet) uBitSet.clone());
 			} else {
-				//System.out.println("Edge is null");
+				edgePQ.incrementStuckCount();
 				return new BitSet(); // return an empty BitSet, which will be ignored in getCycles().
 			}
 			
@@ -225,6 +235,7 @@ public class Cycles {
 							updatePQCycleCount(output);
 							return output; // exit the while loop
 						} else { // if cycle has already been found
+							numRepeatedCycles++;
 							System.out.println("Duplicate cycle. Continuing.");
 							output.clear(); // reset the output
 							continue;
@@ -235,7 +246,8 @@ public class Cycles {
 					}
 				} else {
 					// return edge with the lowest cycle count
-					if (edge.getCycleCount() < vMinCycleCount) { // reset the vMinCycleCountEdges, update vMinCycleCount
+					if (edge.getCycleCount() < vMinCycleCount && !removedEdges.contains(edge)) { 
+						// reset the vMinCycleCountEdges, update vMinCycleCount
 						vMinCycleCount = edge.getCycleCount();
 						vMinCycleCountEdges.clear();
 						vMinCycleCountEdges.add(edge);
@@ -256,13 +268,13 @@ public class Cycles {
 				v = vDiscoveredNode;
 				nodeToBitSet.put(v, (BitSet) vBitSet.clone());
 			} else {
-				//System.out.println("Edge is null.");
+				edgePQ.incrementStuckCount();
 				return new BitSet(); // return an empty BitSet, which will be ignored in getCycles().
 			}
 			
-			System.out.println("uDiscovered: " + uDiscovered);
-			System.out.println("vDiscovered: " + vDiscovered);
-			System.out.println("nodeToBitSet: " + nodeToBitSet);
+			//System.out.println("uDiscovered: " + uDiscovered);
+			//System.out.println("vDiscovered: " + vDiscovered);
+			//System.out.println("nodeToBitSet: " + nodeToBitSet);
 		}
 	}
 	
