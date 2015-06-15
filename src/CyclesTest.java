@@ -24,7 +24,7 @@ public class CyclesTest {
 	public void testCyclesSCC4() {
 		Graph graph = new Graph("scc4.txt");
 		//graph.getCycles(3); // 3 doesn't run completely, edges (429 : 266) and (266 : 429) are only in 2 cycles
-		graph.getCycles(3);
+		graph.getCycles(5);
 	}
 	
 	@Test
@@ -59,5 +59,11 @@ public class CyclesTest {
 		graph.getCycles(15); // Interesting, M = 15 finds all 37 cycles (74 directed cycles).
 	}
 	
+	@Test
+	public void testVerifyCyclesSCC6() {
+		Graph graph = new Graph("scc6.txt");
+		List<BitSet> cycles = graph.getCycles(20);
+		graph.verifyCycles(cycles);
+	}
 
 }

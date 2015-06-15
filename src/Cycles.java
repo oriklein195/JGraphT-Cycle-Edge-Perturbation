@@ -144,7 +144,7 @@ public class Cycles {
 			for (CustomWeightedEdge edge : uNeighbors) {
 				Integer edgeSource = graph.getEdgeSource(edge);
 				System.out.println("u: " + edge);
-				if (uDiscovered.contains(edgeSource) || graph.inDegreeOf(edgeSource) == 1) { // OR if edgeSource inDegree = 1
+				if (uDiscovered.contains(edgeSource)) { 
 					System.out.println("Edge has been discovered already by u.");
 					continue;
 				}
@@ -188,18 +188,30 @@ public class Cycles {
 					}
 				}
 			}
-			//if (graph.getEdgeSource(uMinCycleCountEdge) != null && graph.getEdgeTarget(uMinCycleCountEdge) != null) {'
+			
+			// probability Beta = 80% that the edge is chosen from the uMinCycleCountEdges
+			// probability 1 - Beta = 20% that the edge is chosen from all the uNeighbors
+			
 			if (uMinCycleCountEdges.size() > 0) { // if there exists at least one edge in uMinCycleCountEdges
-				// randomly choose one of the edges in uMinCycleCountEdges
-				int uRandomIndex = new Random().nextInt(uMinCycleCountEdges.size());
-				CustomWeightedEdge uMinCycleCountEdge = uMinCycleCountEdges.get(uRandomIndex);
-				Integer uDiscoveredNode = graph.getEdgeSource(uMinCycleCountEdge);
-				System.out.println("Chosen u edge: " + uMinCycleCountEdge);
+				CustomWeightedEdge randomlyChosenEdge = new CustomWeightedEdge();
+				double randomDouble = new Random().nextDouble(); // between 0.0 and 1.0
+				if (randomDouble < .8) {
+					// choose edge randomly from uMinCycleCountEdges
+					int uRandomIndex = new Random().nextInt(uMinCycleCountEdges.size());
+					randomlyChosenEdge = uMinCycleCountEdges.get(uRandomIndex);
+				} else {
+					// choose edge randomly from all the uNeighbors given that:
+					// - edge hasn't been discovered
+					// hasn't been removed from PQ
+					randomlyChosenEdge = chooseRandomEdge(true, uNeighbors, uDiscovered);
+				}
+				Integer uDiscoveredNode = graph.getEdgeSource(randomlyChosenEdge);
+				System.out.println("Chosen u edge: " + randomlyChosenEdge);
 				uDiscovered.add(uDiscoveredNode);
-				uBitSet.set(edgeToIntegerMap.get(uMinCycleCountEdge));
+				uBitSet.set(edgeToIntegerMap.get(randomlyChosenEdge));
 				u = uDiscoveredNode;
 				nodeToBitSet.put(u, (BitSet) uBitSet.clone());
-			} else {
+			} else { // if there are no valid neighbors left
 				edgePQ.incrementStuckCount();
 				return new BitSet(); // return an empty BitSet, which will be ignored in getCycles().
 			}
@@ -211,7 +223,7 @@ public class Cycles {
 			for (CustomWeightedEdge edge : vNeighbors) {
 				System.out.println("v: " + edge);
 				Integer edgeTarget = graph.getEdgeTarget(edge);
-				if (vDiscovered.contains(edgeTarget) || graph.inDegreeOf(edgeTarget) == 1) {
+				if (vDiscovered.contains(edgeTarget)) {
 					System.out.println("Edge has been discovered already by v.");
 					continue;
 				}
@@ -256,36 +268,77 @@ public class Cycles {
 					}
 				}
 			}
-			//if (graph.getEdgeSource(vMinCycleCountEdge) != null && graph.getEdgeTarget(vMinCycleCountEdge) != null) {
+			
+			// probability Beta = 80% that the edge is chosen from the uMinCycleCountEdges
+			// probability 1 - Beta = 20% that the edge is chosen from all the uNeighbors
 			if (vMinCycleCountEdges.size() > 0) { // if there exists at least one edge in vMinCycleCountEdges
-				// randomly choose one of the edges in vMinCycleCountEdges
-				int vRandomIndex = new Random().nextInt(vMinCycleCountEdges.size());
-				CustomWeightedEdge vMinCycleCountEdge = vMinCycleCountEdges.get(vRandomIndex);
-				Integer vDiscoveredNode = graph.getEdgeTarget(vMinCycleCountEdge);
-				System.out.println("Chosen v edge: " + vMinCycleCountEdge);
+				CustomWeightedEdge randomlyChosenEdge = new CustomWeightedEdge();
+				double randomDouble = new Random().nextDouble(); // between 0.0 and 1.0
+				if (randomDouble < .8) {
+					// choose edge randomly from vMinCycleCountEdges
+					int vRandomIndex = new Random().nextInt(vMinCycleCountEdges.size());
+					randomlyChosenEdge = vMinCycleCountEdges.get(vRandomIndex);
+				} else {
+					// choose edge randomly from all the vNeighbors
+					randomlyChosenEdge = chooseRandomEdge(false, vNeighbors, vDiscovered);
+				}
+				Integer vDiscoveredNode = graph.getEdgeTarget(randomlyChosenEdge);
+				System.out.println("Chosen v edge: " + randomlyChosenEdge);
 				vDiscovered.add(vDiscoveredNode);
-				vBitSet.set(edgeToIntegerMap.get(vMinCycleCountEdge));
+				vBitSet.set(edgeToIntegerMap.get(randomlyChosenEdge));
 				v = vDiscoveredNode;
 				nodeToBitSet.put(v, (BitSet) vBitSet.clone());
-			} else {
+			} else { // if there are no valid neighbors left
 				edgePQ.incrementStuckCount();
 				return new BitSet(); // return an empty BitSet, which will be ignored in getCycles().
 			}
-			
-			//System.out.println("uDiscovered: " + uDiscovered);
-			//System.out.println("vDiscovered: " + vDiscovered);
-			//System.out.println("nodeToBitSet: " + nodeToBitSet);
 		}
+	}
+	
+	private CustomWeightedEdge chooseRandomEdge(boolean isU, Set<CustomWeightedEdge> neighbors, 
+			Set<Integer> discovered) {
+		int item = new Random().nextInt(neighbors.size()); //integer between 0 (inclusive) and size (exclusive)
+		int i = 0;
+		CustomWeightedEdge selectedEdge = new CustomWeightedEdge();
+		for(CustomWeightedEdge edge : neighbors)
+		{
+		    if (i == item)
+		        selectedEdge = edge;
+		    i = i + 1;
+		}
+		// if the edge's target has been discovered already or it's been removed from the PQ
+		if (isU) {
+			// we look at the incoming edges (edge source)
+			if (discovered.contains(graph.getEdgeSource(selectedEdge))) {
+				return chooseRandomEdge(isU, neighbors, discovered);
+			}
+		} else {
+			// we look at the outgoing edges (edge target)
+			if (discovered.contains(graph.getEdgeTarget(selectedEdge))) {
+				return chooseRandomEdge(isU, neighbors, discovered);
+			}
+		}
+		System.out.println("Randomly selected edge: " + selectedEdge);
+		return selectedEdge;
 	}
 	
 	public boolean verifyCycles(List<BitSet> cycles) {
 		for (BitSet cycle : cycles) {
+			BitSet sources = new BitSet(graph.vertexSet().size());
+			BitSet targets = new BitSet(graph.vertexSet().size());
 			for (int i = cycle.nextSetBit(0); i >= 0; i = cycle.nextSetBit(i + 1)) {
 				CustomWeightedEdge edge = integerToEdgeMap.get(i);
+				sources.set(graph.getEdgeSource(edge));
+				targets.set(graph.getEdgeTarget(edge));
 				System.out.println(edge);
+			}
+			if (!sources.equals(targets)) {
+				System.out.println("Not a valid cycle.");
+				return false;
 			}
 			System.out.println();
 		}
+		System.out.println("All cycles are valid.");
 		return true;
 	}
 }
