@@ -37,7 +37,7 @@ public class CyclesTest {
 	@Test
 	public void testCyclesSCC6() {
 		Graph graph = new Graph("scc6.txt");
-		graph.getCycles(20); 
+		graph.getCycles(10); 
 	}
 	
 	
@@ -66,4 +66,21 @@ public class CyclesTest {
 		graph.verifyCycles(cycles);
 	}
 
+	// increment M from 10 to 1000
+	// only print out the last parts of data:
+	/*
+	 * number of cycles
+	 * max cycle length
+	 * number of repeated cycles
+	 * number of removed edges
+	 * priority queue
+	 * number if iterations
+	 */
+	@Test
+	public void testIncrementM() {
+		for (int m = 20; m <= 400; m += 10) {
+			Graph graph = new Graph("scc6.txt");
+			graph.getCycles(m);
+		}
+	}
 }
