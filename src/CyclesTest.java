@@ -37,7 +37,7 @@ public class CyclesTest {
 	@Test
 	public void testCyclesSCC6() {
 		Graph graph = new Graph("scc6.txt");
-		graph.getCycles(10); 
+		graph.getCycles(200); 
 	}
 	
 	
@@ -78,7 +78,7 @@ public class CyclesTest {
 	 */
 	@Test
 	public void testIncrementM() {
-		for (int m = 20; m <= 400; m += 10) {
+		for (int m = 10; m <= 450; m += 10) {
 			Graph graph = new Graph("scc6.txt");
 			graph.getCycles(m);
 		}

@@ -47,7 +47,7 @@ public class Cycles {
 			// poll from the PQ
 			CustomWeightedEdge edgePQ = pq.poll(); // edge with the min number of cycles at this point
 			//System.out.println("edgePQ: " + edgePQ);
-			if (edgePQ.getStuckCount() > 25) {
+			if (edgePQ.getStuckCount() > 200) {
 				// Don't find the cycle and remove the edge
 				//System.out.println("Removed edgePQ from PQ b/c stuckCount > 10.");
 				//System.out.println();
@@ -64,7 +64,6 @@ public class Cycles {
 			} else if (!cycles.contains(newCycle)) { // if this newly found cycle isn't already in the list of cycles
 				cycles.add(newCycle);
 			}
-			//System.out.println();
 		}
 		System.out.println("------------------------------------------------------------------------------------");
 		System.out.println("M: " + minCycleCount);
@@ -194,7 +193,7 @@ public class Cycles {
 			if (uMinCycleCountEdges.size() > 0) { // if there exists at least one edge in uMinCycleCountEdges
 				CustomWeightedEdge randomlyChosenEdge = new CustomWeightedEdge();
 				double randomDouble = new Random().nextDouble(); // between 0.0 and 1.0
-				if (randomDouble < .8) {
+				if (randomDouble < .7) {
 					// choose edge randomly from uMinCycleCountEdges
 					int uRandomIndex = new Random().nextInt(uMinCycleCountEdges.size());
 					randomlyChosenEdge = uMinCycleCountEdges.get(uRandomIndex);
@@ -273,7 +272,7 @@ public class Cycles {
 			if (vMinCycleCountEdges.size() > 0) { // if there exists at least one edge in vMinCycleCountEdges
 				CustomWeightedEdge randomlyChosenEdge = new CustomWeightedEdge();
 				double randomDouble = new Random().nextDouble(); // between 0.0 and 1.0
-				if (randomDouble < .8) {
+				if (randomDouble < .7) {
 					// choose edge randomly from vMinCycleCountEdges
 					int vRandomIndex = new Random().nextInt(vMinCycleCountEdges.size());
 					randomlyChosenEdge = vMinCycleCountEdges.get(vRandomIndex);
