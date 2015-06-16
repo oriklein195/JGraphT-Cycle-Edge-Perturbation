@@ -37,7 +37,7 @@ public class CyclesTest {
 	@Test
 	public void testCyclesSCC6() {
 		Graph graph = new Graph("scc6.txt");
-		graph.getCycles(10); 
+		graph.getCycles(20); 
 	}
 	
 	
