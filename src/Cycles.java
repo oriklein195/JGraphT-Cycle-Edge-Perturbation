@@ -421,7 +421,9 @@ public class Cycles {
 				int source = graph.getEdgeSource(edge);
 				int target = graph.getEdgeTarget(edge);
 				
-				if (sources.get(source) == true || targets.get(source) == true) {
+				if (sources.get(source) == true || targets.get(target) == true) {
+					System.out.println("Not a valid cycle. Repeat source or target.");
+					System.out.println(edge);
 					return false;
 				}
 				sources.set(graph.getEdgeSource(edge));
