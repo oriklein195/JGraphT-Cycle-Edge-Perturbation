@@ -416,17 +416,6 @@ public class Graph {
 		}
 	}
 	
-	public List<BitSet> getCycles(int minCycleCount) {
-		Cycles c = new Cycles(graph);
-		List<BitSet> cycles = c.getCycles(minCycleCount);
-		return cycles;
-	}
-	
-	public boolean verifyCycles(List<BitSet> cycles) {
-		Cycles c = new Cycles(graph);
-		return c.verifyCycles(cycles);
-	}
-	
 	public List<CustomWeightedEdge> findBridges() {
 		List<CustomWeightedEdge> bridges = new ArrayList<CustomWeightedEdge>();
 		// make a copy of the graph
@@ -452,5 +441,8 @@ public class Graph {
 		return bridges;
 	}
 	
+	public SimpleDirectedWeightedGraph<Integer, CustomWeightedEdge> getGraph() {
+		return graph;
+	}
 	
 }
