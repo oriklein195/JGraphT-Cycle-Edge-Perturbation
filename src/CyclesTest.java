@@ -91,4 +91,11 @@ public class CyclesTest {
 			graph.getCycles(m);
 		}
 	}
+	
+	@Test
+	public void testCompareCycleAlgorithms() {
+		Graph graph = new Graph("scc2.txt");
+		graph.findSzwarcfiterLauerCycles();
+		System.out.println("---------------------------------------------------------------");
+	}
 }
