@@ -368,7 +368,7 @@ public class Cycles {
 				// check that the target of this edge is not already discovered
 				if (!vDiscovered.contains(graph.getEdgeTarget(randomlyChosenEdge))) {
 					Integer vDiscoveredNode = graph.getEdgeTarget(randomlyChosenEdge);
-					//System.out.println("Chosen v edge: " + randomlyChosenEdge);
+					System.out.println("Chosen v edge: " + randomlyChosenEdge);
 					vDiscovered.add(vDiscoveredNode);
 					vBitSet.set(edgeToIntegerMap.get(randomlyChosenEdge));
 					v = vDiscoveredNode;
