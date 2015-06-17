@@ -40,8 +40,12 @@ public class CyclesTest {
 	@Test
 	public void testCyclesSCC6() {
 		Graph graph = new Graph("scc6.txt");
+<<<<<<< HEAD
 		Cycles c = new Cycles(graph);
 		c.getCycles(200);
+=======
+		graph.getCycles(10); 
+>>>>>>> origin/master
 	}
 	
 	
@@ -86,7 +90,15 @@ public class CyclesTest {
 	 */
 	@Test
 	public void testIncrementM() {
-		for (int m = 10; m <= 450; m += 10) {
+		for (int m = 10; m <= 1000; m += 10) {
+			Graph graph = new Graph("scc6.txt");
+			graph.getCycles(m);
+		}
+	}
+	
+	@Test
+	public void testIncrementUpperM() {
+		for (int m = 1000; m <= 2000; m += 10) {
 			Graph graph = new Graph("scc6.txt");
 			Cycles c = new Cycles(graph);
 			c.getCycles(m);
