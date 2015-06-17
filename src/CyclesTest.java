@@ -40,12 +40,9 @@ public class CyclesTest {
 	@Test
 	public void testCyclesSCC6() {
 		Graph graph = new Graph("scc6.txt");
-<<<<<<< HEAD
+
 		Cycles c = new Cycles(graph);
 		c.getCycles(200);
-=======
-		graph.getCycles(10); 
->>>>>>> origin/master
 	}
 	
 	
@@ -90,28 +87,31 @@ public class CyclesTest {
 	 */
 	@Test
 	public void testIncrementM() {
+		Graph graph = new Graph("scc6.txt");
 		for (int m = 10; m <= 1000; m += 10) {
-			Graph graph = new Graph("scc6.txt");
-			graph.getCycles(m);
-		}
-	}
-	
-	@Test
-	public void testIncrementUpperM() {
-		for (int m = 1000; m <= 2000; m += 10) {
-			Graph graph = new Graph("scc6.txt");
 			Cycles c = new Cycles(graph);
 			c.getCycles(m);
 		}
 	}
 	
 	@Test
-<<<<<<< HEAD
+	public void testIncrementUpperM() {
+		Graph graph = new Graph("scc6.txt");
+		for (int m = 1000; m <= 2000; m += 10) {
+			Cycles c = new Cycles(graph);
+			c.getCycles(m);
+		}
+	}
+	
+	@Test
 	public void testCompareCycleAlgorithms() {
 		Graph graph = new Graph("scc2.txt");
 		graph.findSzwarcfiterLauerCycles();
 		System.out.println("---------------------------------------------------------------");
-=======
+		Cycles c = new Cycles(graph);
+		c.getCycles(4);
+	}
+
 	public void testTab() {
 		System.out.println("0" + "\t" + "1");
 		System.out.println("1" + "\t" + "4");
@@ -124,6 +124,12 @@ public class CyclesTest {
 		c.getCycles(1800);
 		c.printHistogram();
 		// took 6-7 minutes
->>>>>>> origin/master
+	}
+	
+	@Test
+	public void testSCC6LargeM() {
+		Graph graph = new Graph("scc6.txt");
+		Cycles c = new Cycles(graph);
+		c.getCycles(50);
 	}
 }
