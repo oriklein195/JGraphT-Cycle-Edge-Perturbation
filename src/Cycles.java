@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Random;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.jgrapht.graph.SimpleDirectedWeightedGraph;
 
@@ -23,12 +24,12 @@ public class Cycles {
 	private int numRepeatedCycles;
 	
 	// Constructor for Cycles class.
-	public Cycles(SimpleDirectedWeightedGraph<Integer, CustomWeightedEdge> graph) {
+	public Cycles(Graph graph) {
 		edgeToIntegerMap = new HashMap<CustomWeightedEdge, Integer>();
 		integerToEdgeMap = new HashMap<Integer, CustomWeightedEdge>();
 		pq = new PriorityQueue<CustomWeightedEdge>();
 		nodeToBitSet = new HashMap<Integer, BitSet>();
-		this.graph = graph;
+		this.graph = graph.getGraph();
 		cycles = new ArrayList<BitSet>();
 		removedEdges = new ArrayList<CustomWeightedEdge>();
 		numRepeatedCycles = 0;
@@ -85,6 +86,46 @@ public class Cycles {
 		System.out.println("Removed " + removedEdges.size() + " edges: " + removedEdges);
 		System.out.println();
 		return cycles;
+	}
+	
+	public void printHistogram() {
+		// process PQ
+		// process removed edges
+		// first make sure that they add up to 1308. **
+		Map<Integer, Integer> histogram = new TreeMap<Integer, Integer>();
+		System.out.println(pq.size());
+		System.out.println(removedEdges.size());
+		for (CustomWeightedEdge edge : pq) {
+			int cycleCount = edge.getCycleCount();
+			if (!histogram.containsKey(cycleCount)) {
+				// create a new key with value 1
+				histogram.put(cycleCount, 1);
+			} else {
+				// add 1 to the value of the existing key
+				int existingValue = histogram.get(cycleCount);
+				histogram.put(cycleCount, existingValue + 1);
+			}
+		}
+		for (CustomWeightedEdge removedEdge : removedEdges) {
+			int cycleCount = removedEdge.getCycleCount();
+			if (!histogram.containsKey(cycleCount)) {
+				// create a new key with value 1
+				histogram.put(cycleCount, 1);
+			} else {
+				// add 1 to the value of the existing key
+				int existingValue = histogram.get(cycleCount);
+				histogram.put(cycleCount, existingValue + 1);
+			}
+		}	
+		// sort the histogram by increasing order
+		System.out.println(histogram);
+		System.out.println("Cycle Count:     " + "# Edges with this Cycle Count");
+		// then use a for loop and add them to a mapping from Integer to Integer. From cycleCount to number of edges
+		// with that cycleCount.
+		for (Integer key : histogram.keySet()) {
+			System.out.println(key + "\t" + histogram.get(key));
+		}
+		
 	}
 	
 	// Private helper method for the constructor, maps each edge to its assigned edge number
