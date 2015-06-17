@@ -26,7 +26,7 @@ public class Cycles {
 	// Constructor for Cycles class.
 	public Cycles(Graph graph) {
 		edgeToIntegerMap = new HashMap<CustomWeightedEdge, Integer>();
-		integerToEdgeMap = new HashMap<Integer, CustomWeightedEdge>();
+		integerToEdgeMap = new TreeMap<Integer, CustomWeightedEdge>();
 		pq = new PriorityQueue<CustomWeightedEdge>();
 		nodeToBitSet = new HashMap<Integer, BitSet>();
 		this.graph = graph.getGraph();
@@ -418,6 +418,12 @@ public class Cycles {
 			BitSet targets = new BitSet(graph.vertexSet().size());
 			for (int i = cycle.nextSetBit(0); i >= 0; i = cycle.nextSetBit(i + 1)) {
 				CustomWeightedEdge edge = integerToEdgeMap.get(i);
+				int source = graph.getEdgeSource(edge);
+				int target = graph.getEdgeTarget(edge);
+				
+				if (sources.get(source) == true || targets.get(source) == true) {
+					return false;
+				}
 				sources.set(graph.getEdgeSource(edge));
 				targets.set(graph.getEdgeTarget(edge));
 				System.out.println(edge);
@@ -430,5 +436,11 @@ public class Cycles {
 		}
 		System.out.println("All cycles are valid.");
 		return true;
+	}
+	
+	public void printIntegerToEdgeMap() {
+		for (Integer key : integerToEdgeMap.keySet()) {
+			System.out.println(key + "\t" + integerToEdgeMap.get(key));
+		}
 	}
 }
