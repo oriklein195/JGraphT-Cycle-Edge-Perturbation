@@ -103,12 +103,27 @@ public class CyclesTest {
 	}
 	
 	@Test
-	public void testCompareCycleAlgorithms() {
+	public void testCompareCycleAlgorithms4Clique() {
 		Graph graph = new Graph("scc2.txt");
 		graph.findSzwarcfiterLauerCycles();
-		System.out.println("---------------------------------------------------------------");
 		Cycles c = new Cycles(graph);
 		c.getCycles(4);
+	}
+	
+	@Test
+	public void testCompareCycleAlgorithms5Clique() {
+		Graph graph = new Graph("5-clique.txt");
+		graph.findSzwarcfiterLauerCycles();
+		Cycles c = new Cycles(graph);
+		c.getCycles(15);
+	}
+	
+	@Test
+	public void testCompareCycleAlgorithms6Clique() {
+		Graph graph = new Graph("6-clique.txt");
+		graph.findSzwarcfiterLauerCycles();
+		Cycles c = new Cycles(graph);
+		c.getCycles(64);
 	}
 
 	public void testTab() {
@@ -144,7 +159,8 @@ public class CyclesTest {
 	public void testSCC6LargeM() {
 		Graph graph = new Graph("scc6.txt");
 		Cycles c = new Cycles(graph);
-		c.getCycles(50);
+		List<BitSet> cycles = c.getCycles(50);
+		c.getCyclesWithEdge(303, 305, cycles);
 	}
 	
 	@Test

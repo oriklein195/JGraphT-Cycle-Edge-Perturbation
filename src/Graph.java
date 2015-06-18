@@ -133,7 +133,6 @@ public class Graph {
 	
 	public List<List> findSzwarcfiterLauerCycles() {
 		SzwarcfiterLauerSimpleCycles slCycles = new SzwarcfiterLauerSimpleCycles(graph);
-		System.out.println("Finding cycles...");
 		List<List> cycles = slCycles.findSimpleCycles();
 		List<List> output = new ArrayList<List>();
 		System.out.println("Szwarcfiter Lauer cycles:");
@@ -143,8 +142,8 @@ public class Graph {
 				output.add(cycle);
 			}
 		}
-		//System.out.println(output);
-		System.out.println("There are " + output.size() + " cycles of length 3 or greater.");
+		System.out.println(output.size() + " cycles of length 3 or greater:");
+		System.out.println(output);
 		return output;
 	}
 	
