@@ -41,7 +41,7 @@ public class CyclesTest {
 	public void testCyclesSCC6() {
 		Graph graph = new Graph("scc6.txt");
 		Cycles c = new Cycles(graph);
-		c.getCycles(200);
+		c.getCycles(20);
 	}
 	
 	
@@ -117,12 +117,27 @@ public class CyclesTest {
 	}
 	
 	@Test
+	public void testActualHistogram() {
+		Graph graph = new Graph("scc6.txt");
+		Cycles c = new Cycles(graph);
+		c.getCycles(1700);
+		c.printHistogram();
+		// took 6-7 minutes
+	}
+	
+	@Test
+	public void testLargeMValue() {
+		Graph graph = new Graph("scc6.txt");
+		Cycles c = new Cycles(graph);
+		c.getCycles(1600);
+	}
+	
+	@Test
 	public void testHistogram() {
 		Graph graph = new Graph("scc6.txt");
 		Cycles c = new Cycles(graph);
-		c.getCycles(1800);
+		c.getCycles(50);
 		c.printHistogram();
-		// took 6-7 minutes
 	}
 	
 	@Test
