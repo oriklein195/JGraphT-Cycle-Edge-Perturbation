@@ -83,6 +83,7 @@ public class Cycles {
 		System.out.println("The max cycle length is " + maxCycleLength);
 		System.out.println("Encountered " + numRepeatedCycles + " repeated cycles." + " Algorithm continued to find larger "
 				+ "cycles.");
+		System.out.println("Priority Queue: " + pq);
 		System.out.println("Removed " + removedEdges.size() + " edges: " + removedEdges);
 		System.out.println();
 		return cycles;
@@ -452,5 +453,24 @@ public class Cycles {
 		for (Integer key : integerToEdgeMap.keySet()) {
 			System.out.println(key + "\t" + integerToEdgeMap.get(key));
 		}
+	}
+	
+	public List<BitSet> getCyclesWithEdge(Integer sourceNode, Integer targetNode, List<BitSet> cycles) {
+		CustomWeightedEdge edge = graph.getEdge(sourceNode, targetNode);
+		Integer edgeNumber = edgeToIntegerMap.get(edge);
+		List<BitSet> cyclesWithEdge = new ArrayList<BitSet>();
+		for (BitSet cycle : cycles) {
+			if (cycle.get(edgeNumber)) { // if this cycle contains the edge we're looking for
+				cyclesWithEdge.add(cycle);
+				System.out.println(cycle);
+				for (int i = cycle.nextSetBit(0); i >= 0; i = cycle.nextSetBit(i + 1)) {
+					List<CustomWeightedEdge> edges = new ArrayList<CustomWeightedEdge>();
+					edges.add(integerToEdgeMap.get(i));
+					System.out.println(edges);
+				}
+			}
+		}
+		System.out.println("Cycles with edge " + edge + " - " + cyclesWithEdge);
+		return cyclesWithEdge;
 	}
 }

@@ -146,11 +146,11 @@ public class SzwarcfiterLauerSimpleCycles<V, E>
                 }
             }
             startVertices.add(startVertex);
-            System.out.println(scc.size() + " - " + scc);
+            /*System.out.println(scc.size() + " - " + scc);
             System.out.println("start vertex: " + startVertex);
             System.out.println("in-degree: " + maxInDegree);
             System.out.println("out-degree: " + graph.outDegreeOf(startVertex));
-            System.out.println();
+            System.out.println();*/
         }
 
         for (V vertex : startVertices) {
