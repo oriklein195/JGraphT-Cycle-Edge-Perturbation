@@ -48,7 +48,7 @@ public class Cycles {
 			// poll from the PQ
 			CustomWeightedEdge edgePQ = pq.poll(); // edge with the min number of cycles at this point
 			//System.out.println("edgePQ: " + edgePQ);
-			if (edgePQ.getStuckCount() > 200) {
+			if (edgePQ.getStuckCount() > 1000000) {
 				// Don't find the cycle and remove the edge
 				//System.out.println("Removed edgePQ from PQ b/c stuckCount > 10.");
 				//System.out.println();
@@ -86,6 +86,22 @@ public class Cycles {
 		System.out.println("Removed " + removedEdges.size() + " edges: " + removedEdges);
 		System.out.println();
 		return cycles;
+	}
+	
+	public void printCycleLengthHistogram(List<BitSet> cycles) {
+		Map<Integer, Integer> histogram = new TreeMap<Integer, Integer>();
+		for (BitSet cycle : cycles) {
+			int cycleLength = cycle.cardinality();
+			if (histogram.containsKey(cycleLength)) {
+				int numCyclesWithLength = histogram.get(cycleLength);
+				histogram.put(cycleLength, numCyclesWithLength + 1);
+			} else {
+				histogram.put(cycleLength, 1);
+			}
+		}
+		for (Integer cycleLength : histogram.keySet()) {
+			System.out.println(cycleLength + "\t" + histogram.get(cycleLength));
+		}
 	}
 	
 	public void printHistogram() {

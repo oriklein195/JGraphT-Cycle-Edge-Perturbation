@@ -93,7 +93,7 @@ public class GraphTest {
 	// There are 6 connected components.
 	@Test
 	public void testGetConnectedComponents() {
-		Graph graph = new Graph("s1.txt");
+		Graph graph = new Graph("scc3.txt");
 		graph.getConnectedComponents();
 	}
 	

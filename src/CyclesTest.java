@@ -110,6 +110,17 @@ public class CyclesTest {
 		Cycles c = new Cycles(graph);
 		c.getCycles(4);
 	}
+	
+	@Test
+	public void testCompareCyclesSCC3() {
+		Graph graph = new Graph("scc3.txt");
+		//List<List> slCycles = graph.findSzwarcfiterLauerCycles();
+		//graph.printCycleLengthHistogram(slCycles);
+		
+		Cycles c = new Cycles(graph);
+		List<BitSet> cycles = c.getCycles(500);
+		c.printCycleLengthHistogram(cycles);
+	}
 
 	public void testTab() {
 		System.out.println("0" + "\t" + "1");
@@ -146,6 +157,8 @@ public class CyclesTest {
 		Cycles c = new Cycles(graph);
 		c.getCycles(50);
 	}
+	
+	
 	
 	@Test
 	public void testPrintIntegerToEdgeMap() {

@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.TreeMap;
 
 import javax.swing.JScrollPane;
 
@@ -443,6 +444,22 @@ public class Graph {
 	
 	public SimpleDirectedWeightedGraph<Integer, CustomWeightedEdge> getGraph() {
 		return graph;
+	}
+	
+	public void printCycleLengthHistogram(List<List> slCycles) {
+		Map<Integer, Integer> histogram = new TreeMap<Integer, Integer>();
+		for (List slCycle : slCycles) {
+			int cycleLength = slCycle.size();
+			if (histogram.containsKey(cycleLength)) {
+				int numCyclesWithLength = histogram.get(cycleLength);
+				histogram.put(cycleLength, numCyclesWithLength + 1);
+			} else {
+				histogram.put(cycleLength, 1);
+			}
+		}
+		for (Integer cycleLength : histogram.keySet()) {
+			System.out.println(cycleLength + "\t" + histogram.get(cycleLength));
+		}
 	}
 	
 }
