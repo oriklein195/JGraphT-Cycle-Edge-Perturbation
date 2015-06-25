@@ -8,6 +8,7 @@ import org.junit.Test;
 
 public class CyclesTest {
 	
+	// 4 nodes, 6 edges (12 directed edges)
 	@Test
 	public void testCyclesSCC2() {
 		Graph graph = new Graph("scc2.txt");
@@ -15,21 +16,34 @@ public class CyclesTest {
 		c.getCycles(4); // M = 4 is the maximum for a 4-clique b/c each edge can only be a part of 4 cycles.
 	}
 	
+	// 25 nodes, 50 edges (100 directed edges)
 	@Test
 	public void testCyclesSCC3() {
 		Graph graph = new Graph("scc3.txt");
 		Cycles c = new Cycles(graph);
-		c.getCycles(2);
+		c.getCycles(100);
+	}
+	
+	// 112 nodes, 199 edges (398 directed edges)
+	@Test
+	public void testCyclesIterativeSCC4() {
+		for (int i = 9000; i <= 9800; i = i + 400) { // for some reason, this is not working
+			Graph graph = new Graph("scc4.txt");
+			Cycles c = new Cycles(graph);
+			List<BitSet> cycles = c.getCycles(i);
+			c.printCycleLengthHistogram(cycles);
+			// commented out cycles and priority queue
+		}
 	}
 	
 	@Test
 	public void testCyclesSCC4() {
 		Graph graph = new Graph("scc4.txt");
-		//graph.getCycles(3); // 3 doesn't run completely, edges (429 : 266) and (266 : 429) are only in 2 cycles
 		Cycles c = new Cycles(graph);
-		c.getCycles(5);
+		c.getCycles(9800);
 	}
 	
+	// 142 nodes, 292 edges (584 directed edges)
 	@Test
 	public void testCyclesSCC5() {
 		Graph graph = new Graph("scc5.txt");
@@ -37,6 +51,7 @@ public class CyclesTest {
 		c.getCycles(2);
 	}
 	
+	// 288 nodes, 654 edges (1308 directed edges)
 	@Test
 	public void testCyclesSCC6() {
 		Graph graph = new Graph("scc6.txt");
@@ -173,6 +188,13 @@ public class CyclesTest {
 		c.getCyclesWithEdge(303, 305, cycles);
 	}
 	
+	// stuck count is 1000
+	@Test
+	public void testSCC4() {
+		Graph graph = new Graph("scc4.txt");
+		Cycles c = new Cycles(graph);
+		c.getCycles(200);
+	}
 	
 	
 	@Test

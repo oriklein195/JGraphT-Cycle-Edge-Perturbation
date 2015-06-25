@@ -22,6 +22,7 @@ public class Cycles {
 	private List<BitSet> cycles;
 	private List<CustomWeightedEdge> removedEdges;
 	private int numRepeatedCycles;
+	private static long startTime = System.currentTimeMillis();
 	
 	// Constructor for Cycles class.
 	public Cycles(Graph graph) {
@@ -48,7 +49,7 @@ public class Cycles {
 			// poll from the PQ
 			CustomWeightedEdge edgePQ = pq.poll(); // edge with the min number of cycles at this point
 			//System.out.println("edgePQ: " + edgePQ);
-			if (edgePQ.getStuckCount() > 1000000) {
+			if (edgePQ.getStuckCount() > 100000) {
 				// Don't find the cycle and remove the edge
 				//System.out.println("Removed edgePQ from PQ b/c stuckCount > 10.");
 				//System.out.println();
@@ -66,10 +67,12 @@ public class Cycles {
 				cycles.add(newCycle);
 			}
 		}
+		long endTime = System.currentTimeMillis();
 		System.out.println("------------------------------------------------------------------------------------");
+		System.out.println("It took " + ((endTime - startTime) / 1000L) + " seconds");
 		System.out.println("M: " + minCycleCount);
 		System.out.println("Number of Iterations: " + iteration);
-		System.out.println("Cycles: " + cycles.size() + " - " + cycles);
+		//System.out.println("Cycles: " + cycles.size() + " - " + cycles);
 		int cycleSum = 0;
 		int maxCycleLength = 0;
 		for (BitSet cycle : cycles) {
@@ -83,7 +86,7 @@ public class Cycles {
 		System.out.println("The max cycle length is " + maxCycleLength);
 		System.out.println("Encountered " + numRepeatedCycles + " repeated cycles." + " Algorithm continued to find larger "
 				+ "cycles.");
-		System.out.println("Priority Queue: " + pq);
+		//System.out.println("Priority Queue: " + pq);
 		System.out.println("Removed " + removedEdges.size() + " edges: " + removedEdges);
 		System.out.println();
 		return cycles;
@@ -214,8 +217,10 @@ public class Cycles {
 					continue;
 				}
 				
-				if (uDiscovered.contains(edgeSource)) { 
+				if (uDiscovered.contains(edgeSource)) { // if we can close the cycle on the same side
 					//System.out.println("Edge has been discovered already by u.");
+					
+					//output.set(edgeToIntegerMap.get(edge));
 					continue;
 				}
 				// if the target of the edge is in uNeighbors
