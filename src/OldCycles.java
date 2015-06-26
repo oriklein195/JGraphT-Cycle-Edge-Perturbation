@@ -12,7 +12,7 @@ import java.util.TreeMap;
 import org.jgrapht.graph.SimpleDirectedWeightedGraph;
 
 
-public class Cycles {
+public class OldCycles {
 
 	private Map<CustomWeightedEdge, Integer> edgeToIntegerMap;
 	private Map<Integer, CustomWeightedEdge> integerToEdgeMap;
@@ -22,11 +22,10 @@ public class Cycles {
 	private List<BitSet> cycles;
 	private List<CustomWeightedEdge> removedEdges;
 	private int numRepeatedCycles;
-	private int numSameSideCycles;
 	private static long startTime = System.currentTimeMillis();
 	
 	// Constructor for Cycles class.
-	public Cycles(Graph graph) {
+	public OldCycles(Graph graph) {
 		edgeToIntegerMap = new HashMap<CustomWeightedEdge, Integer>();
 		integerToEdgeMap = new TreeMap<Integer, CustomWeightedEdge>();
 		pq = new PriorityQueue<CustomWeightedEdge>();
@@ -35,7 +34,6 @@ public class Cycles {
 		cycles = new ArrayList<BitSet>();
 		removedEdges = new ArrayList<CustomWeightedEdge>();
 		numRepeatedCycles = 0;
-		numSameSideCycles = 0;
 		populateEdgeToIntegerMap();
 	}
 	
@@ -90,7 +88,6 @@ public class Cycles {
 				+ "cycles.");
 		//System.out.println("Priority Queue: " + pq);
 		System.out.println("Removed " + removedEdges.size() + " edges: " + removedEdges);
-		System.out.println("Number of Same Side Cycles: " + numSameSideCycles);
 		System.out.println();
 		return cycles;
 	}
@@ -271,35 +268,6 @@ public class Cycles {
 				}
 			}
 			
-			// 2nd For Loop, which checks if an edge closes a cycle on the same side. At this point, we know that no edge
-			// closes a cycle on the other side.
-			for (CustomWeightedEdge edge : uNeighbors) {
-				Integer edgeSource = graph.getEdgeSource(edge);
-				if (uDiscovered.contains(edgeSource)) { // if we can close the cycle on the same side, edge has already been
-					// discovered by u
-					output.or(uBitSet);
-					output.andNot(nodeToBitSet.get(edgeSource));
-					output.set(edgeToIntegerMap.get(edge));
-					if (output.cardinality() > 2) { 
-						if (!cycles.contains(output)) { // AND cycle hasn't been found already
-							/*System.out.println(edgePQ);
-							System.out.println("u - closed on same side");*/
-							numSameSideCycles++;
-							updatePQCycleCount(output);
-							return output; // exit the while loop
-						} else { // if cycle has already been found
-							numRepeatedCycles++;
-							//System.out.println("Duplicate cycle. Continuing.");
-							output.clear();
-							continue;
-						}
-					} else { // if we found a cycle of length 2 (as in the first case), then we clear the output BitSet
-						// and continue searching
-						output.clear();
-					}
-				}
-			}
-			
 			// probability Beta = 80% that the edge is chosen from the uMinCycleCountEdges
 			// probability 1 - Beta = 20% that the edge is chosen from all the uNeighbors
 			
@@ -395,35 +363,6 @@ public class Cycles {
 						vMinCycleCountEdges.add(edge);
 					} else if (edge.getCycleCount() == vMinCycleCount) {
 						vMinCycleCountEdges.add(edge);
-					}
-				}
-			}
-			
-			// 2nd For Loop, which checks if an edge closes a cycle on the same side. At this point, we know that no edge
-			// closes a cycle on the other side.
-			for (CustomWeightedEdge edge : vNeighbors) {
-				Integer edgeTarget = graph.getEdgeTarget(edge);
-				if (vDiscovered.contains(edgeTarget)) { // if we can close the cycle on the same side, edge has already been
-					// discovered by v
-					output.or(vBitSet);
-					output.andNot(nodeToBitSet.get(edgeTarget));
-					output.set(edgeToIntegerMap.get(edge));
-					if (output.cardinality() > 2) { 
-						if (!cycles.contains(output)) { // AND cycle hasn't been found already
-							numSameSideCycles++;
-							/*System.out.println(edgePQ);
-							System.out.println("v - closed on same side");*/
-							updatePQCycleCount(output);
-							return output; // exit the while loop
-						} else { // if cycle has already been found
-							numRepeatedCycles++;
-							//System.out.println("Duplicate cycle. Continuing.");
-							output.clear();
-							continue;
-						}
-					} else { // if we found a cycle of length 2 (as in the first case), then we clear the output BitSet
-						// and continue searching
-						output.clear();
 					}
 				}
 			}
@@ -539,9 +478,5 @@ public class Cycles {
 		}
 		System.out.println("Cycles with edge " + edge + " - " + cyclesWithEdge);
 		return cyclesWithEdge;
-	}
-	
-	public Map<Integer, CustomWeightedEdge> getIntegerToEdgeMap() {
-		return integerToEdgeMap;
 	}
 }

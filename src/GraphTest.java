@@ -122,6 +122,30 @@ public class GraphTest {
 	}
 	
 	@Test
+	public void testPrintVertexDegreesHistogramSCC3() {
+		Graph graph = new Graph("scc3.txt");
+		graph.printVertexDegreesHistogram();
+	}
+	
+	@Test
+	public void testPrintVertexDegreesHistogramSCC4() {
+		Graph graph = new Graph("scc4.txt");
+		graph.printVertexDegreesHistogram();
+	}
+	
+	@Test
+	public void testPrintVertexDegreesHistogramSCC5() {
+		Graph graph = new Graph("scc5.txt");
+		graph.printVertexDegreesHistogram();
+	}
+	
+	@Test
+	public void testPrintVertexDegreesHistogramSCC6() {
+		Graph graph = new Graph("scc6.txt");
+		graph.printVertexDegreesHistogram();
+	}
+	
+	@Test
 	public void testFindBridgesSCC1() {
 		Graph graph = new Graph("scc1.txt");
 		graph.findBridges();

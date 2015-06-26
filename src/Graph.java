@@ -246,7 +246,7 @@ public class Graph {
 				//System.out.println("totalEdgePerturbationMap: " + totalEdgePerturbationMap);
 			}
 		}
-		// Update the original graph by perturbing each edge. Add the totalEdgePerturbationMap / edgeMapCyclesMap
+		// Update the original graph by perturbing each edge. Add the totalEdgePerturbationMap / edgeNumCyclesMap
 		// to every edge in the graph.
 		for (CustomWeightedEdge edge : graph.edgeSet()) {
 			double originalEdgeWeight = graph.getEdgeWeight(edge);
@@ -413,6 +413,23 @@ public class Graph {
 				}
 			}
 			System.out.println("Node: " + vertex + "    Degree: " + graph.outDegreeOf(vertex) + "   " + neighbors);
+		}
+	}
+	
+	public void printVertexDegreesHistogram() {
+		Map<Integer, Integer> map = new HashMap<Integer, Integer>(); // mapping from degree to # vertices with that degree
+		for (Integer vertex : graph.vertexSet()) {
+			int vertexDegree = graph.inDegreeOf(vertex);
+			if (map.containsKey(vertexDegree)) {
+				map.put(vertexDegree, map.get(vertexDegree) + 1);
+			} else {
+				map.put(vertexDegree, 1);
+			}
+		}
+		
+		System.out.println("Degree:" + "\t" + "Number of Vertices with Degree:");
+		for (Integer degree : map.keySet()) {
+			System.out.println(degree + "\t" + map.get(degree));
 		}
 	}
 	

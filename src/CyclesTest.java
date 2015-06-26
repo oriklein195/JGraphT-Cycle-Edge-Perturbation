@@ -21,8 +21,19 @@ public class CyclesTest {
 	public void testCyclesSCC3() {
 		Graph graph = new Graph("scc3.txt");
 		Cycles c = new Cycles(graph);
-		List<BitSet> cycles = c.getCycles(100);
-		c.verifyCycles(cycles);
+		List<BitSet> cycles = c.getCycles(190);
+		//c.printCycleLengthHistogram(cycles);
+		c.printHistogram();
+	}
+	
+	// old implementation which doesn't close on the same side
+	@Test
+	public void testOldCyclesSCC3() {
+		Graph graph = new Graph("scc3.txt");
+		OldCycles c = new OldCycles(graph);
+		List<BitSet> cycles = c.getCycles(190);
+		//c.printCycleLengthHistogram(cycles);
+		c.printHistogram();
 	}
 	
 	@Test
@@ -48,7 +59,8 @@ public class CyclesTest {
 	public void testCyclesSCC4() {
 		Graph graph = new Graph("scc4.txt");
 		Cycles c = new Cycles(graph);
-		c.getCycles(9800);
+		List<BitSet> cycles = c.getCycles(90);
+		c.printCycleLengthHistogram(cycles);
 	}
 	
 	// 142 nodes, 292 edges (584 directed edges)

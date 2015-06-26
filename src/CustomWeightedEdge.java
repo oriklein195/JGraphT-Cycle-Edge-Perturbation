@@ -9,10 +9,12 @@ public class CustomWeightedEdge extends DefaultWeightedEdge implements Comparabl
 	private static final long serialVersionUID = 1L;
 	private int cycleCount;
 	private int stuckCount;
+	private double totalPerturbation;
 	
 	public CustomWeightedEdge() {
 		cycleCount = 0;
 		stuckCount = 0;
+		totalPerturbation = 0;
 	}
 	
 	public int getCycleCount() {
@@ -29,6 +31,18 @@ public class CustomWeightedEdge extends DefaultWeightedEdge implements Comparabl
 	
 	public void incrementStuckCount() {
 		stuckCount++;
+	}
+	
+	public void addPerturbation(double edgePerturbation) {
+		totalPerturbation += edgePerturbation;
+	}
+	
+	public double getTotalPerturbation() {
+		return totalPerturbation;
+	}
+	
+	public void resetTotalPerturbation() {
+		totalPerturbation = 0.0;
 	}
 	
 	/**
