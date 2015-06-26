@@ -22,6 +22,7 @@ public class Cycles {
 	private List<BitSet> cycles;
 	private List<CustomWeightedEdge> removedEdges;
 	private int numRepeatedCycles;
+	private int numSameSideCycles;
 	private static long startTime = System.currentTimeMillis();
 	
 	// Constructor for Cycles class.
@@ -34,6 +35,7 @@ public class Cycles {
 		cycles = new ArrayList<BitSet>();
 		removedEdges = new ArrayList<CustomWeightedEdge>();
 		numRepeatedCycles = 0;
+		numSameSideCycles = 0;
 		populateEdgeToIntegerMap();
 	}
 	
@@ -59,8 +61,6 @@ public class Cycles {
 			BitSet newCycle = getOneCycle(edgePQ);
 			// add back edgePQ to the PQ.
 			pq.add(edgePQ);
-			//System.out.println("Priority Queue: " + pq);
-			//System.out.println("cycles: " + cycles.size());
 			if (newCycle.isEmpty()) {
 				//System.out.println("Got stuck in a corner. Surrounded by discovered nodes.");
 			} else if (!cycles.contains(newCycle)) { // if this newly found cycle isn't already in the list of cycles
@@ -84,10 +84,10 @@ public class Cycles {
 		double averageCycleLength = (double) cycleSum / (double) cycles.size();
 		System.out.println("The average cycle length is " + averageCycleLength + ".");
 		System.out.println("The max cycle length is " + maxCycleLength);
-		System.out.println("Encountered " + numRepeatedCycles + " repeated cycles." + " Algorithm continued to find larger "
-				+ "cycles.");
-		//System.out.println("Priority Queue: " + pq);
+		System.out.println("Cycles: " + cycles.size() + " - " + cycles);
+		System.out.println("Encountered " + numRepeatedCycles + " repeated cycles.");
 		System.out.println("Removed " + removedEdges.size() + " edges: " + removedEdges);
+		System.out.println("Number of Same Side Cycles: " + numSameSideCycles);
 		System.out.println();
 		return cycles;
 	}
@@ -205,6 +205,7 @@ public class Cycles {
 			// PICK BEST NEIGHBOR FOR U. (Look at incoming edges)
 			int uMinCycleCount = 10000000;
 			List<CustomWeightedEdge> uMinCycleCountEdges = new ArrayList<CustomWeightedEdge>();
+			
 			for (CustomWeightedEdge edge : uNeighbors) {
 				/*System.out.println("u: " + edge);
 				System.out.println("uDiscovered: " + uDiscovered);
@@ -263,6 +264,35 @@ public class Cycles {
 						uMinCycleCountEdges.add(edge);
 					} else if (edge.getCycleCount() == uMinCycleCount) {
 						uMinCycleCountEdges.add(edge);
+					}
+				}
+			}
+			
+			// 2nd For Loop, which checks if an edge closes a cycle on the same side. At this point, we know that no edge
+			// closes a cycle on the other side.
+			for (CustomWeightedEdge edge : uNeighbors) {
+				Integer edgeSource = graph.getEdgeSource(edge);
+				if (uDiscovered.contains(edgeSource)) { // if we can close the cycle on the same side, edge has already been
+					// discovered by u
+					output.or(uBitSet);
+					output.andNot(nodeToBitSet.get(edgeSource));
+					output.set(edgeToIntegerMap.get(edge));
+					if (output.cardinality() > 2) { 
+						if (!cycles.contains(output)) { // AND cycle hasn't been found already
+							/*System.out.println(edgePQ);
+							System.out.println("u - closed on same side");*/
+							numSameSideCycles++;
+							updatePQCycleCount(output);
+							return output; // exit the while loop
+						} else { // if cycle has already been found
+							numRepeatedCycles++;
+							//System.out.println("Duplicate cycle. Continuing.");
+							output.clear();
+							continue;
+						}
+					} else { // if we found a cycle of length 2 (as in the first case), then we clear the output BitSet
+						// and continue searching
+						output.clear();
 					}
 				}
 			}
@@ -362,6 +392,35 @@ public class Cycles {
 						vMinCycleCountEdges.add(edge);
 					} else if (edge.getCycleCount() == vMinCycleCount) {
 						vMinCycleCountEdges.add(edge);
+					}
+				}
+			}
+			
+			// 2nd For Loop, which checks if an edge closes a cycle on the same side. At this point, we know that no edge
+			// closes a cycle on the other side.
+			for (CustomWeightedEdge edge : vNeighbors) {
+				Integer edgeTarget = graph.getEdgeTarget(edge);
+				if (vDiscovered.contains(edgeTarget)) { // if we can close the cycle on the same side, edge has already been
+					// discovered by v
+					output.or(vBitSet);
+					output.andNot(nodeToBitSet.get(edgeTarget));
+					output.set(edgeToIntegerMap.get(edge));
+					if (output.cardinality() > 2) { 
+						if (!cycles.contains(output)) { // AND cycle hasn't been found already
+							numSameSideCycles++;
+							/*System.out.println(edgePQ);
+							System.out.println("v - closed on same side");*/
+							updatePQCycleCount(output);
+							return output; // exit the while loop
+						} else { // if cycle has already been found
+							numRepeatedCycles++;
+							//System.out.println("Duplicate cycle. Continuing.");
+							output.clear();
+							continue;
+						}
+					} else { // if we found a cycle of length 2 (as in the first case), then we clear the output BitSet
+						// and continue searching
+						output.clear();
 					}
 				}
 			}

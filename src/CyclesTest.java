@@ -21,7 +21,15 @@ public class CyclesTest {
 	public void testCyclesSCC3() {
 		Graph graph = new Graph("scc3.txt");
 		Cycles c = new Cycles(graph);
-		c.getCycles(100);
+		List<BitSet> cycles = c.getCycles(100);
+		c.verifyCycles(cycles);
+	}
+	
+	@Test
+	public void testCycleSameSide() {
+		Graph graph = new Graph("cycle-same-side.txt");
+		Cycles c = new Cycles(graph);
+		c.getCycles(1);
 	}
 	
 	// 112 nodes, 199 edges (398 directed edges)
