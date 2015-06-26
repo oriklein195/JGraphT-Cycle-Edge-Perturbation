@@ -85,7 +85,13 @@ public class Cycles {
 		System.out.println("The average cycle length is " + averageCycleLength + ".");
 		System.out.println("The max cycle length is " + maxCycleLength);
 		System.out.println("Cycles: " + cycles.size() + " - " + cycles);
+<<<<<<< Updated upstream
 		System.out.println("Encountered " + numRepeatedCycles + " repeated cycles.");
+=======
+		System.out.println("Encountered " + numRepeatedCycles + " repeated cycles." + " Algorithm continued to find larger "
+				+ "cycles.");
+		//System.out.println("Priority Queue: " + pq);
+>>>>>>> Stashed changes
 		System.out.println("Removed " + removedEdges.size() + " edges: " + removedEdges);
 		System.out.println("Number of Same Side Cycles: " + numSameSideCycles);
 		System.out.println();
