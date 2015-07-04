@@ -223,4 +223,34 @@ public class CyclesTest {
 		Cycles c = new Cycles(graph);
 		c.printIntegerToEdgeMap();
 	}
+	
+	@Test
+	public void testCyclesMatrixSCC2() {
+		Graph graph = new Graph("scc2.txt");
+		Cycles c = new Cycles(graph);
+		List<BitSet> cycles = c.getCycles(4);
+		c.saveCyclesMatrixAsText(cycles);
+	}
+	
+	@Test
+	public void testPrintIntegerToEdgeMapSCC2() {
+		Graph graph = new Graph("scc2.txt");
+		Cycles c = new Cycles(graph);
+		c.printIntegerToEdgeMap();
+	}
+	
+	@Test
+	public void testCyclesMatrixSCC3() {
+		Graph graph = new Graph("scc3.txt");
+		Cycles c = new Cycles(graph);
+		List<BitSet> cycles = c.getCycles(100);
+		c.saveCyclesMatrixAsText(cycles);
+	}
+	
+	@Test
+	public void testPrintIntegerToEdgeMapSCC3() {
+		Graph graph = new Graph("scc3.txt");
+		Cycles c = new Cycles(graph);
+		c.printIntegerToEdgeMap();
+	}
 }

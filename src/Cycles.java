@@ -1,3 +1,7 @@
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.HashMap;
@@ -84,7 +88,7 @@ public class Cycles {
 		double averageCycleLength = (double) cycleSum / (double) cycles.size();
 		System.out.println("The average cycle length is " + averageCycleLength + ".");
 		System.out.println("The max cycle length is " + maxCycleLength);
-		System.out.println("Cycles: " + cycles.size() + " - " + cycles);
+		System.out.println("Cycles: " + cycles.size());
 		System.out.println("Encountered " + numRepeatedCycles + " repeated cycles.");
 		System.out.println("Encountered " + numRepeatedCycles + " repeated cycles." + " Algorithm continued to find larger "
 				+ "cycles.");
@@ -175,6 +179,7 @@ public class Cycles {
 	
 	public BitSet getOneCycle(CustomWeightedEdge edgePQ) {
 		BitSet output = new BitSet(graph.edgeSet().size()); // this is the number of bits in the BitSet
+		//System.out.println(output.length());
 		Set<Integer> uDiscovered = new HashSet<Integer>(); // nodes that have been discovered while searching BFS from u
 		Set<Integer> vDiscovered = new HashSet<Integer>(); // nodes that have been discovered while searching BFS from v
 		
@@ -184,6 +189,7 @@ public class Cycles {
 		Integer u = graph.getEdgeSource(edgePQ);
 		uDiscovered.add(u);
 		nodeToBitSet.put(u, (BitSet) uBitSet.clone());
+		//System.out.println(uBitSet.size());
 		Integer v = graph.getEdgeTarget(edgePQ);
 		vDiscovered.add(v);
 		nodeToBitSet.put(v, (BitSet) vBitSet.clone());
@@ -518,7 +524,8 @@ public class Cycles {
 	
 	public void printIntegerToEdgeMap() {
 		for (Integer key : integerToEdgeMap.keySet()) {
-			System.out.println(key + "\t" + integerToEdgeMap.get(key));
+			System.out.println(key + "\t" + integerToEdgeMap.get(key) + "     " + 
+				graph.getEdgeWeight(integerToEdgeMap.get(key)));
 		}
 	}
 	
@@ -543,5 +550,30 @@ public class Cycles {
 	
 	public Map<Integer, CustomWeightedEdge> getIntegerToEdgeMap() {
 		return integerToEdgeMap;
+	}
+	
+	public void saveCyclesMatrixAsText(List<BitSet> cycles) {
+		try {
+			File file = new File("/Users/christopher/Desktop/Cycles_Matrix/matrix.txt");
+			if (!file.exists()) {
+				file.createNewFile();
+			}
+			FileWriter fw = new FileWriter(file.getAbsoluteFile());
+			BufferedWriter bw = new BufferedWriter(fw);
+			for (BitSet cycle : cycles) {
+				for (int i = 0; i < graph.edgeSet().size(); i++) {
+					if (cycle.get(i)) {
+						bw.write("1 ");
+					} else {
+						bw.write("0 ");
+					}
+				}
+				bw.newLine();
+			}
+			bw.close();
+			System.out.println("Finished writing file.");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }

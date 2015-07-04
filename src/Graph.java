@@ -1,10 +1,14 @@
 import java.awt.Dimension;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -27,6 +31,7 @@ public class Graph {
 
 	private SimpleDirectedWeightedGraph<Integer, CustomWeightedEdge> graph; // graph that gets perturbed
 	private SimpleDirectedWeightedGraph<Integer, CustomWeightedEdge> originalGraph;
+	private SimpleDirectedWeightedGraph<Integer, CustomWeightedEdge> perturbedGraph;
 	
 	/**
 	 * Constructor that takes an input .txt file and builds the graph using JGraphT's SimpleDirectedGraph class.
@@ -67,8 +72,10 @@ public class Graph {
 				startNode = Integer.parseInt(tokens[0]);
 				endNode = Integer.parseInt(tokens[1]);
 				weight = Double.parseDouble(tokens[2]);
-				addEdge(startNode, endNode, weight);
-				// want to add edges
+				if (!graph.containsEdge(startNode, endNode)) {
+
+					addEdge(startNode, endNode, weight);
+				}
 			}
 		} catch (IOException e) {
 			System.out.println("IO Exception.");
@@ -81,11 +88,84 @@ public class Graph {
 	 * @param size the number of nodes that we want in the graph/clique
 	 */
 	public Graph(int size) {
-		graph = new SimpleDirectedWeightedGraph<Integer, CustomWeightedEdge>(CustomWeightedEdge.class);
-		createRandomCliquePerfectTriangles(size);
+		//originalGraph = new SimpleDirectedWeightedGraph<Integer, CustomWeightedEdge>(CustomWeightedEdge.class);
+		//perturbedGraph = new SimpleDirectedWeightedGraph<Integer, CustomWeightedEdge>(CustomWeightedEdge.class);
+		createRandomPerfectGraph(size);
+		System.out.println("Original Graph:");
+		System.out.println(graph.vertexSet().size() + " Vertices: " + graph.vertexSet());
+		System.out.println(graph.edgeSet().size() + " Edges: ");
+		for (CustomWeightedEdge edge : graph.edgeSet()) {
+			System.out.println(edge + "\t" + graph.getEdgeWeight(edge));
+		}
 		originalGraph = copyGraph(graph);
-		System.out.println("original graph");
-		System.out.println(originalGraph);
+		
+	}
+	
+	public void createRandomPerfectGraph(int size) {
+		graph = new SimpleDirectedWeightedGraph<Integer, CustomWeightedEdge>(CustomWeightedEdge.class);
+		Map<Integer, Double> vertexToFreeBindingEnergyMap = new HashMap<Integer, Double>();
+		List<Integer> inTree = new ArrayList<Integer>();
+		List<Integer> notInTree = new ArrayList<Integer>();
+		// add vertices. Edges are not yet added
+		for (int i = 0; i < size; i++) {
+			graph.addVertex(i);
+			// assign a random value to the vertex
+			Random r = new Random();
+			double randomFreeBindingEnergy = -5.0 + 10.0 * r.nextDouble(); // random double between -5.0 and 5.0 inclusive
+			vertexToFreeBindingEnergyMap.put(i, randomFreeBindingEnergy);
+			notInTree.add(i); // initially, none of the edges are in the tree
+		}
+		inTree.add(0); // arbitrarily let node 0 be the root of the tree
+		notInTree.remove(0);
+		// Pick a node in the tree. Pick a node that's not in a tree. Create 2 directed edges between these nodes
+		while (notInTree.size() > 0) { // while there exists a node that's not in the tree
+			// randomly pick a node in the tree
+			Integer nodeInTree = pickRandomIntegerFromList(inTree);
+			Integer nodeNotInTree = pickRandomIntegerFromList(notInTree);
+			double forwardEdgeWeight = vertexToFreeBindingEnergyMap.get(nodeNotInTree) - vertexToFreeBindingEnergyMap.get(nodeInTree);
+			addEdge(nodeInTree, nodeNotInTree, forwardEdgeWeight);
+			notInTree.remove(nodeNotInTree);
+			inTree.add(nodeNotInTree); // the not-in-tree node is now in the tree
+		}
+		// At this point, we've created a spanning tree. Now, we want to add more edges to the graph to create cycles.
+		int numEdgesAdded = 0;
+		while (numEdgesAdded < size) { // adding an additional N edges, for a total of 2N - 1 edges and N nodes
+			// choose an unconnected pair of nodes uniformly at random and connect them. These two nodes also 
+			// can't be the same node; they must be different
+			Integer node1 = pickRandomIntegerFromList(inTree);
+			Integer node2 = pickRandomIntegerFromList(inTree);
+			if (!graph.containsEdge(node1, node2) && node1 != node2) { // add an edge, move to the next iteration
+				double forwardEdgeWeight = vertexToFreeBindingEnergyMap.get(node2) - vertexToFreeBindingEnergyMap.get(node1);
+				System.out.println("forward edge weight: " + forwardEdgeWeight);
+				addEdge(node1, node2, forwardEdgeWeight);
+				numEdgesAdded++;
+			} 
+		}
+	}
+	
+	public void perturbEdges() {
+		Random r = new Random();
+		int count = -1;
+		for (CustomWeightedEdge edge : graph.edgeSet()) { // generate new random number every other edge
+			count++;
+			if (count % 2 != 0) {
+				continue;
+			}
+			double edgePerturbation = -1.0 + 2.0 * r.nextDouble();
+			System.out.println("edge perturbation: " + edgePerturbation);
+			graph.setEdgeWeight(edge, graph.getEdgeWeight(edge) + edgePerturbation);
+			CustomWeightedEdge backwardEdge = graph.getEdge(graph.getEdgeTarget(edge), 
+					graph.getEdgeSource(edge));
+			graph.setEdgeWeight(backwardEdge, graph.getEdgeWeight(backwardEdge) - edgePerturbation);
+		}
+		perturbedGraph = copyGraph(graph);
+	}
+	
+	public Integer pickRandomIntegerFromList(List<Integer> list) {
+		Random r = new Random();
+		// pick a random integer between 0 and list.size() - 1
+		int randomIndex = r.nextInt(list.size());
+		return list.get(randomIndex);
 	}
 	
 	public void createRandomCliquePerfectTriangles(int size) {
@@ -117,21 +197,6 @@ public class Graph {
 		
 	}
 	
-	public List<List> findJohnsonCycles() {
-		JohnsonSimpleCycles johnsonCycles = new JohnsonSimpleCycles(graph);
-		List<List> cycles = johnsonCycles.findSimpleCycles();
-		List<List> output = new ArrayList<List>();
-		System.out.println("Johnson cycles:");
-		// ignore all the cycles of length 2 (these trivially sum up to 0)
-		for (List cycle : cycles) {
-			if (cycle.size() > 2) {
-				output.add(cycle);
-			}
-		}
-		System.out.println(output);
-		return output;
-	}
-	
 	public List<List> findSzwarcfiterLauerCycles() {
 		SzwarcfiterLauerSimpleCycles slCycles = new SzwarcfiterLauerSimpleCycles(graph);
 		List<List> cycles = slCycles.findSimpleCycles();
@@ -148,178 +213,6 @@ public class Graph {
 		return output;
 	}
 	
-	public void perturbEdges() {
-		// before each iteration, need to reset the totalEdgePerturbationMap
-		// edgeNumCyclesMap can stay the same since the topology of the graph doesn't change.
-		System.out.println("Starting to find cycles...");
-		List<List> cycles = findSzwarcfiterLauerCycles();
-		Map<Integer, Map<Integer, Integer>> edgeNumCyclesMap = createEdgeNumCyclesMap(cycles);
-		double totalCycleInconsistency = 1.0; // any number greater than the threshold works
-		int iteration = 0;
-		while (totalCycleInconsistency > 0.001) {
-			iteration++;
-			System.out.println("---------------------------------------------");
-			System.out.println("ITERATION: " + iteration);
-			totalCycleInconsistency = perturbIteration(cycles, edgeNumCyclesMap);
-			//print(graph);
-			System.out.println();
-			System.out.println("total cycle inconsistency: " + totalCycleInconsistency);
-		}
-		printFinalStatistics(cycles, iteration);
-		getPercentChange();
-	}
-	
-	private void printFinalStatistics(List<List> cycles, int iteration) {
-		printEdges();
-		int cycleNumber = 0;
-		for (List<Integer> cycle : cycles) {
-			cycleNumber++;
-			int cycleLength = cycle.size();
-			double cycleSum = 0.0;
-			
-			CustomWeightedEdge edge;
-			// 1. Calculate the sum of the cycle edge weights.
-			for (int i = 0; i < cycleLength; i++) { // remember, i is the index, not the node value in the list
-				if (i == cycleLength - 1) {
-					// edge from i to 0 (wraps around)
-					edge = graph.getEdge(cycle.get(i), cycle.get(0));
-				} else {
-					// edge from i to i + 1
-					edge = graph.getEdge(cycle.get(i), cycle.get(i + 1));
-				}
-				cycleSum += graph.getEdgeWeight(edge);
-			}
-			System.out.println("Cycle " + cycleNumber + ": " + cycle + " - " + "cycle sum: " + cycleSum);
-		}
-		
-		System.out.println("---------------------------------------------");
-		System.out.println("Completed in " + iteration + " iterations.");
-	}
-	
-	public double perturbIteration(List<List> cycles, Map<Integer, Map<Integer, Integer>> edgeNumCyclesMap) {
-		Map<Integer, Map<Integer, Double>> totalEdgePerturbationMap = new HashMap<Integer, Map<Integer, Double>>();
-		double totalCycleInconsistency = 0.0;
-		for (List<Integer> cycle : cycles) {
-			// need to know the length of the cycle
-			// need to outline the individual edges of the cycle
-			// need to calculate the sum of the edge weights of the cycle
-			// divide the negative of the sum by the length of the cycle and distribute among the edges
-			// IMPORTANT: keep track of how many cycles each edge is in, to find the average of the added perturbation
-			//  could have 2 other JGraphT graphs
-			//    - one keeps track of the sum of the perturbations
-			//    - the other keeps track of the number of cycles that an edge is in
-			// lastly, epsilon is added in to vary how much each edge should be perturbed with each iteration
-			
-			int cycleLength = cycle.size();
-			double cycleSum = 0.0;
-			//System.out.println(); // just to make it neater between cycles
-			//System.out.println(cycle);
-			CustomWeightedEdge edge;
-			// 1. Calculate the sum of the cycle edge weights.
-			for (int i = 0; i < cycleLength; i++) { // remember, i is the index, not the node value in the list
-				if (i == cycleLength - 1) {
-					// edge from i to 0 (wraps around)
-					edge = graph.getEdge(cycle.get(i), cycle.get(0));
-				} else {
-					// edge from i to i + 1
-					edge = graph.getEdge(cycle.get(i), cycle.get(i + 1));
-				}
-				cycleSum += graph.getEdgeWeight(edge);
-			}
-			totalCycleInconsistency += Math.abs(cycleSum);
-			
-			double averageEdgePerturbation = -1.0 * cycleSum / cycleLength; // MULTIPLIED BY SOME EPSILON
-			//System.out.println("average edge perturbation: " + averageEdgePerturbation);
-			// 2. Add this averageEdgePerturbation to each edge in the cycle.
-			for (int j = 0; j < cycleLength; j++) {
-				if (j == cycleLength - 1) {
-					edge = graph.getEdge(cycle.get(j), cycle.get(0));
-					//System.out.println(edge);
-				} else {
-					edge = graph.getEdge(cycle.get(j), cycle.get(j + 1));
-					//System.out.println(edge);
-				}
-				Integer edgeSource = graph.getEdgeSource(edge);
-				Integer edgeTarget = graph.getEdgeTarget(edge);
-				totalEdgePerturbationMap = storeEdgePerturbation(totalEdgePerturbationMap, edgeSource, 
-						edgeTarget, averageEdgePerturbation);
-				//System.out.println("totalEdgePerturbationMap: " + totalEdgePerturbationMap);
-			}
-		}
-		// Update the original graph by perturbing each edge. Add the totalEdgePerturbationMap / edgeNumCyclesMap
-		// to every edge in the graph.
-		for (CustomWeightedEdge edge : graph.edgeSet()) {
-			double originalEdgeWeight = graph.getEdgeWeight(edge);
-			Integer edgeSource = graph.getEdgeSource(edge);
-			Integer edgeTarget = graph.getEdgeTarget(edge);
-			double totalEdgePerturbation = totalEdgePerturbationMap.get(edgeSource).get(edgeTarget);
-			int edgeNumCycles = edgeNumCyclesMap.get(edgeSource).get(edgeTarget);
-			
-			double averagedEdgePerturbation = totalEdgePerturbation / edgeNumCycles;
-			graph.setEdgeWeight(edge, originalEdgeWeight + averagedEdgePerturbation);
-		}
-		return totalCycleInconsistency; // actually double what the actual cycle inconsistency is, since the 
-		// algorithm is double-counting the cycles
-	}
-	
-	/**
-	 * Helper method that stores the edge perturbation into the totalEdgePerturbationMap.
-	 */
-	private Map<Integer, Map<Integer, Double>> storeEdgePerturbation(Map<Integer, Map<Integer, Double>> map, 
-			Integer edgeSource, Integer edgeTarget, double averageEdgePerturbation) {
-		if (map.containsKey(edgeSource)) {
-			double existingEdgePerturbation = 0.0;
-			if (map.get(edgeSource).containsKey(edgeTarget)) {
-				existingEdgePerturbation = map.get(edgeSource).get(edgeTarget);
-			}
-			map.get(edgeSource).put(edgeTarget, existingEdgePerturbation + averageEdgePerturbation);
-		} else {
-			Map<Integer, Double> targetNodes = new HashMap<Integer, Double>();
-			targetNodes.put(edgeTarget, averageEdgePerturbation);
-			map.put(edgeSource, targetNodes);
-		}
-		return map;
-	}
-	
-	private Map<Integer, Map<Integer, Integer>> createEdgeNumCyclesMap(List<List> cycles) {
-		Map<Integer, Map<Integer, Integer>> edgeNumCyclesMap = new HashMap<Integer, Map<Integer, Integer>>();
-		
-		for (List<Integer> cycle : cycles) {
-			CustomWeightedEdge edge;
-			int cycleLength = cycle.size();
-			for (int j = 0; j < cycleLength; j++) {
-				if (j == cycleLength - 1) {
-					edge = graph.getEdge(cycle.get(j), cycle.get(0));
-				} else {
-					edge = graph.getEdge(cycle.get(j), cycle.get(j + 1));
-				}
-				Integer edgeSource = graph.getEdgeSource(edge);
-				Integer edgeTarget = graph.getEdgeTarget(edge);
-				edgeNumCyclesMap = storeEdgeNumCycles(edgeNumCyclesMap, edgeSource, edgeTarget);
-			}
-		}
-		return edgeNumCyclesMap;
-	}
-	
-	/**
-	 * Helper method that stores the number of cycles that an edge is a part of.
-	 */
-	private Map<Integer, Map<Integer, Integer>> storeEdgeNumCycles(Map<Integer, Map<Integer, Integer>> map,
-			Integer edgeSource, Integer edgeTarget) {
-		if (map.containsKey(edgeSource)) {
-			Integer existingNumCycles = 0;
-			if (map.get(edgeSource).containsKey(edgeTarget)) {
-				existingNumCycles = map.get(edgeSource).get(edgeTarget);
-			}
-			map.get(edgeSource).put(edgeTarget, existingNumCycles + 1);
-		} else {
-			Map<Integer, Integer> targetNodes = new HashMap<Integer, Integer>();
-			targetNodes.put(edgeTarget, 1);
-			map.put(edgeSource, targetNodes);
-		}
-		return map;
-	}
-	
 	/**
 	 * Helper method which not only adds the edge literally from startNode to endNode, but also adds a negative
 	 * edge weight from endNode to startNode.
@@ -331,21 +224,36 @@ public class Graph {
 		graph.setEdgeWeight(backwardEdge, -1.0 * weight);
 	}
 	
-	public double getPercentChange() {
+	public void getPercentChangeOriginalToPerturbed() {
+		getPercentChange(originalGraph, perturbedGraph);
+	}
+	
+	public void getPercentChangedPerturbedToCorrected() {
+		getPercentChange(perturbedGraph, graph);
+	}
+	
+	public void getPercentChangedCorrectedToOriginal() {
+		getPercentChange(graph, originalGraph);
+	}
+	
+	public double getPercentChange(SimpleDirectedWeightedGraph<Integer, CustomWeightedEdge> graph1, 
+			SimpleDirectedWeightedGraph<Integer, CustomWeightedEdge> graph2) {
 		// assumed that originalGraph and perturbedGraph still have the same nodes and edges.
 		// The only thing that has changed is the weight on each edge.
 		double totalEdgeDifference = 0.0; // magnitude of the total edge perturbations
 		double originalEdgeSum = 0.0; // magnitude of the total edge sum
-		for (CustomWeightedEdge originalEdge : originalGraph.edgeSet()) {
+		for (CustomWeightedEdge originalEdge : graph1.edgeSet()) {
 			// get that same edge in the graph
-			double originalEdgeWeight = originalGraph.getEdgeWeight(originalEdge);
+			double originalEdgeWeight = graph1.getEdgeWeight(originalEdge);
 			originalEdgeSum += Math.abs(originalEdgeWeight);
-			Integer sourceVertex = originalGraph.getEdgeSource(originalEdge);
-			Integer targetVertex = originalGraph.getEdgeTarget(originalEdge);
-			CustomWeightedEdge perturbedEdge = graph.getEdge(sourceVertex, targetVertex);
-			double perturbedEdgeWeight = graph.getEdgeWeight(perturbedEdge);
+			Integer sourceVertex = graph1.getEdgeSource(originalEdge);
+			Integer targetVertex = graph1.getEdgeTarget(originalEdge);
+			CustomWeightedEdge perturbedEdge = graph2.getEdge(sourceVertex, targetVertex);
+			double perturbedEdgeWeight = graph2.getEdgeWeight(perturbedEdge);
 			totalEdgeDifference += Math.abs(originalEdgeWeight - perturbedEdgeWeight);
+			//System.out.println(totalEdgeDifference);
 		}
+		System.out.println();
 		System.out.println("total edge difference: " + totalEdgeDifference);
 		System.out.println("original edge sum: " + originalEdgeSum);
 		double percentChange = totalEdgeDifference / originalEdgeSum;
@@ -353,7 +261,7 @@ public class Graph {
 		return percentChange;
 	}
 	
-	public SimpleDirectedWeightedGraph<Integer, CustomWeightedEdge> copyGraph(
+	public static SimpleDirectedWeightedGraph<Integer, CustomWeightedEdge> copyGraph(
 			SimpleDirectedWeightedGraph<Integer, CustomWeightedEdge> originalGraph) {
 		SimpleDirectedWeightedGraph<Integer, CustomWeightedEdge> copiedGraph = new SimpleDirectedWeightedGraph<Integer, 
 				CustomWeightedEdge>(CustomWeightedEdge.class);
@@ -399,9 +307,32 @@ public class Graph {
 			Integer targetVertex = graph.getEdgeTarget(edge);
 			CustomWeightedEdge originalEdge = originalGraph.getEdge(sourceVertex, targetVertex);
 			double originalWeight = originalGraph.getEdgeWeight(originalEdge);
-			System.out.println(edge + "           " + originalWeight + "              " + weight);
+			//System.out.println(edge + "           " + originalWeight + "              " + weight);
+			System.out.println(weight);
 		}
 		System.out.println();
+	}
+	
+	public void saveGraphAsText() {
+		try {
+			File file = new File("/Users/christopher/Desktop/Cycles_Matrix/graph.txt");
+			if (!file.exists()) {
+				file.createNewFile();
+			}
+			FileWriter fw = new FileWriter(file.getAbsoluteFile());
+			BufferedWriter bw = new BufferedWriter(fw);
+			for (CustomWeightedEdge edge : graph.edgeSet()) {
+				Integer sourceVertex = graph.getEdgeSource(edge);
+				Integer targetVertex = graph.getEdgeTarget(edge);
+				double edgeWeight = graph.getEdgeWeight(edge);
+				bw.write(sourceVertex + " " + targetVertex + " " + edgeWeight);
+				bw.newLine();
+			}
+			bw.close();
+			System.out.println("Finished writing file.");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public void printVertexDegrees() {
