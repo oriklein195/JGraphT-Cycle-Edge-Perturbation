@@ -552,6 +552,10 @@ public class Cycles {
 		return integerToEdgeMap;
 	}
 	
+	public Map<CustomWeightedEdge, Integer> getEdgeToIntegerMap() {
+		return edgeToIntegerMap;
+	}
+	
 	public void saveCyclesMatrixAsText(List<BitSet> cycles) {
 		try {
 			File file = new File("/Users/christopher/Desktop/Cycles_Matrix/matrix.txt");

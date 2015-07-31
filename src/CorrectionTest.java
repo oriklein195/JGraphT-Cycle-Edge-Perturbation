@@ -100,5 +100,15 @@ public class CorrectionTest {
 		graph.printEdges();
 	}
 	
+	@Test
+	public void testSimulatedAnnealing() {
+		Graph graph = new Graph("RandomPerfect100Nodes.txt");
+		Cycles c = new Cycles(graph);
+		List<BitSet> cycles = c.getCycles(100);
+		Map<Integer, CustomWeightedEdge> integerToEdgeMap = c.getIntegerToEdgeMap();
+		Map<CustomWeightedEdge, Integer> edgeToIntegerMap = c.getEdgeToIntegerMap();
+		Correction.simulatedAnnealing(graph.getGraph(), cycles, integerToEdgeMap, edgeToIntegerMap);
+	}
+	
 
 }

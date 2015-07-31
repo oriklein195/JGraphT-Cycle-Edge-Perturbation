@@ -1,4 +1,6 @@
+import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -60,5 +62,34 @@ public class Correction {
 			edge.resetTotalPerturbation();
 		}
 		return totalCycleInconsistency;
+	}
+	
+	public static void simulatedAnnealing(SimpleDirectedWeightedGraph<Integer, CustomWeightedEdge> graph, List<BitSet> cycles,
+			Map<Integer, CustomWeightedEdge> integerToEdgeMap, Map<CustomWeightedEdge, Integer> edgeToIntegerMap) {
+		// write a helper method that computes the inconsistency of all the cycles that a single edge partakes in
+		Map<CustomWeightedEdge, List<BitSet>> edgeToCyclesMap = generateEdgeToCyclesMap(cycles, integerToEdgeMap);
+		// write a helper method which creates a map from an edge to the set of cycles that contain the edge
+	}
+	
+	private static Map<CustomWeightedEdge, List<BitSet>> generateEdgeToCyclesMap(List<BitSet> cycles, Map<Integer, 
+			CustomWeightedEdge> integerToEdgeMap) {
+		
+		Map<CustomWeightedEdge, List<BitSet>> map = new HashMap<CustomWeightedEdge, List<BitSet>>();
+		for (int i = 0; i < integerToEdgeMap.size(); i++) {
+			List<BitSet> cyclesOfEdge = new ArrayList<BitSet>();
+			for (BitSet cycle : cycles) {
+				if (cycle.get(i)) { // if this cycle contains this edge
+					cyclesOfEdge.add(cycle);
+				}
+			}
+			CustomWeightedEdge edge = integerToEdgeMap.get(i);
+			System.out.println(edge + " --- " + cyclesOfEdge.size());
+			map.put(edge, cyclesOfEdge);
+		}
+		return map;
+	}
+	
+	private static double computeEdgeInconsistency(CustomWeightedEdge edge) {
+		return 0.0;
 	}
 }
