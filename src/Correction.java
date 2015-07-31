@@ -1,8 +1,11 @@
 import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
+import java.util.Set;
 
 import org.jgrapht.graph.SimpleDirectedWeightedGraph;
 
@@ -66,9 +69,32 @@ public class Correction {
 	
 	public static void simulatedAnnealing(SimpleDirectedWeightedGraph<Integer, CustomWeightedEdge> graph, List<BitSet> cycles,
 			Map<Integer, CustomWeightedEdge> integerToEdgeMap, Map<CustomWeightedEdge, Integer> edgeToIntegerMap) {
-		// write a helper method that computes the inconsistency of all the cycles that a single edge partakes in
-		Map<CustomWeightedEdge, List<BitSet>> edgeToCyclesMap = generateEdgeToCyclesMap(cycles, integerToEdgeMap);
 		// write a helper method which creates a map from an edge to the set of cycles that contain the edge
+		Map<CustomWeightedEdge, List<BitSet>> edgeToCyclesMap = generateEdgeToCyclesMap(cycles, integerToEdgeMap);
+		
+		/*Random r = new Random();
+		// Choose a random edge from the graph.
+		Set<CustomWeightedEdge> edgeSet = graph.edgeSet();
+		CustomWeightedEdge[] edgeArray = edgeSet.toArray(new CustomWeightedEdge[edgeSet.size()]);
+		int randomIndex = r.nextInt(edgeArray.length);
+		CustomWeightedEdge randomEdge = edgeArray[randomIndex];
+		
+		System.out.println("Random Edge: " + randomEdge + "\t" + "Edge Number: " + randomIndex);*/
+		
+		for (int i = 0; i < graph.edgeSet().size(); i++) {
+			CustomWeightedEdge chosenEdge = integerToEdgeMap.get(i);
+			if (chosenEdge.getCycleCount() == 0) {
+				continue;
+			}
+			//System.out.println("BEFORE EDGE PERTURBATION:");
+			double originalEdgeInconsistency = computeEdgeInconsistency(chosenEdge, edgeToCyclesMap.get(chosenEdge), graph,
+					integerToEdgeMap, true);
+			//System.out.println("AFTER EDGE PERTURBATION:");
+			double perturbedEdgeInconsistency = computeEdgeInconsistency(chosenEdge, edgeToCyclesMap.get(chosenEdge), graph,
+					integerToEdgeMap, false);
+			double deltaEdgeInconsistency = originalEdgeInconsistency - perturbedEdgeInconsistency;
+			System.out.println(deltaEdgeInconsistency + "\t" + "Edge " + i);
+		}
 	}
 	
 	private static Map<CustomWeightedEdge, List<BitSet>> generateEdgeToCyclesMap(List<BitSet> cycles, Map<Integer, 
@@ -83,13 +109,52 @@ public class Correction {
 				}
 			}
 			CustomWeightedEdge edge = integerToEdgeMap.get(i);
-			System.out.println(edge + " --- " + cyclesOfEdge.size());
 			map.put(edge, cyclesOfEdge);
 		}
 		return map;
 	}
 	
-	private static double computeEdgeInconsistency(CustomWeightedEdge edge) {
-		return 0.0;
+	private static double computeEdgeInconsistency(CustomWeightedEdge edge, List<BitSet> cyclesOfEdge, 
+			SimpleDirectedWeightedGraph<Integer, CustomWeightedEdge> graph, Map<Integer, CustomWeightedEdge> integerToEdgeMap,
+			boolean perturbEdge) {
+		double totalInconsistency = 0.0;
+		double totalInconsistencyMagnitude = 0.0;
+		List<Double> inconsistencies = new ArrayList<Double>();
+		
+		
+		for (BitSet cycle : cyclesOfEdge) {
+			double cycleInconsistency = 0.0;
+			for (int j = cycle.nextSetBit(0); j >= 0; j = cycle.nextSetBit(j + 1)) {
+				CustomWeightedEdge cycleEdge = integerToEdgeMap.get(j); // each edge in the cycle
+				double cycleEdgeWeight = graph.getEdgeWeight(cycleEdge);
+				cycleInconsistency += cycleEdgeWeight;
+			}
+			//System.out.println(cycle);
+			//System.out.println(cycleInconsistency);
+			inconsistencies.add(cycleInconsistency);
+			totalInconsistency += cycleInconsistency;
+			totalInconsistencyMagnitude += Math.abs(cycleInconsistency);
+		}
+		//System.out.println("Total Inconsistency: " + totalInconsistency);
+		//System.out.println("Total Inconsistency Magnitude: " + totalInconsistencyMagnitude);
+		if (perturbEdge) {
+			Collections.sort(inconsistencies);
+			//System.out.println(inconsistencies);
+			double median = getMedianInconsistency(inconsistencies);
+			//System.out.println("Median: " + median);
+			graph.setEdgeWeight(edge, graph.getEdgeWeight(edge) - median);
+		}
+		return totalInconsistencyMagnitude;
+	}
+	
+	private static double getMedianInconsistency(List<Double> inconsistencies) {
+		double median;
+		int size = inconsistencies.size();
+		if (inconsistencies.size() % 2 == 0) {
+			median = ((double)inconsistencies.get(size / 2) + (double)inconsistencies.get(size / 2 - 1))/2;
+		} else {
+			median = (double) inconsistencies.get(size / 2);
+		}
+		return median;
 	}
 }

@@ -409,4 +409,11 @@ public class Graph {
 		}
 	}
 	
+	public void printIntegerToEdgeMap(Map<Integer, CustomWeightedEdge> integerToEdgeMap) {
+		for (Integer key : integerToEdgeMap.keySet()) {
+			CustomWeightedEdge edge = integerToEdgeMap.get(key);
+			System.out.println(key + " - " + edge + " - " + graph.getEdgeWeight(edge));
+		}
+	}
+	
 }

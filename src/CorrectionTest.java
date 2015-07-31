@@ -84,12 +84,13 @@ public class CorrectionTest {
 	@Test
 	public void testImportedPerfectGraph100Nodes() {
 		Graph graph = new Graph("RandomPerfect100Nodes.txt");
-		System.out.println("perfect edges");
-		graph.printEdges();
+		/*System.out.println("perfect edges");
+		graph.printEdges();*/
 		graph.perturbEdges();
 		System.out.println("perturbed edges");
-		graph.printEdges();
-		Cycles c = new Cycles(graph);
+		//graph.printEdges();
+		graph.saveGraphAsText();
+		/*Cycles c = new Cycles(graph);
 		List<BitSet> cycles = c.getCycles(1000);
 		c.saveCyclesMatrixAsText(cycles);
 		Map<Integer, CustomWeightedEdge> integerToEdgeMap = c.getIntegerToEdgeMap();
@@ -97,17 +98,19 @@ public class CorrectionTest {
 		graph.getPercentChangeOriginalToPerturbed(); // percent change between original graph and perturbed graph (how much error was induced)
 		graph.getPercentChangedPerturbedToCorrected(); // percent change between perturbed graph and corrected graph
 		graph.getPercentChangedCorrectedToOriginal();
-		graph.printEdges();
+		graph.printEdges();*/
 	}
 	
 	@Test
 	public void testSimulatedAnnealing() {
-		Graph graph = new Graph("RandomPerfect100Nodes.txt");
+		Graph graph = new Graph("Random100NodesPerturbed.txt");
 		Cycles c = new Cycles(graph);
 		List<BitSet> cycles = c.getCycles(100);
 		Map<Integer, CustomWeightedEdge> integerToEdgeMap = c.getIntegerToEdgeMap();
 		Map<CustomWeightedEdge, Integer> edgeToIntegerMap = c.getEdgeToIntegerMap();
 		Correction.simulatedAnnealing(graph.getGraph(), cycles, integerToEdgeMap, edgeToIntegerMap);
+		
+		//graph.printIntegerToEdgeMap(integerToEdgeMap);
 	}
 	
 
