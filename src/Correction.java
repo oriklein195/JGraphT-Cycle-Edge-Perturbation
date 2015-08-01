@@ -72,29 +72,34 @@ public class Correction {
 		// write a helper method which creates a map from an edge to the set of cycles that contain the edge
 		Map<CustomWeightedEdge, List<BitSet>> edgeToCyclesMap = generateEdgeToCyclesMap(cycles, integerToEdgeMap);
 		
-		/*Random r = new Random();
+		Random r = new Random();
 		// Choose a random edge from the graph.
 		Set<CustomWeightedEdge> edgeSet = graph.edgeSet();
 		CustomWeightedEdge[] edgeArray = edgeSet.toArray(new CustomWeightedEdge[edgeSet.size()]);
-		int randomIndex = r.nextInt(edgeArray.length);
-		CustomWeightedEdge randomEdge = edgeArray[randomIndex];
 		
-		System.out.println("Random Edge: " + randomEdge + "\t" + "Edge Number: " + randomIndex);*/
+		System.out.println("Total Inconsistency Magnitude: " + getTotalInconsistency(cycles, integerToEdgeMap, graph));
 		
-		for (int i = 0; i < graph.edgeSet().size(); i++) {
-			CustomWeightedEdge chosenEdge = integerToEdgeMap.get(i);
-			if (chosenEdge.getCycleCount() == 0) {
+		// Here is the meat of the algorithm.
+		for (int i = 0; i < 100000; i++) {
+			int randomIndex = r.nextInt(edgeArray.length);
+			CustomWeightedEdge randomEdge = edgeArray[randomIndex];
+			
+			//System.out.println("Random Edge: " + randomEdge + "\t" + "Edge Number: " + randomIndex);
+			
+			if (randomEdge.getCycleCount() == 0) {
 				continue;
 			}
 			//System.out.println("BEFORE EDGE PERTURBATION:");
-			double originalEdgeInconsistency = computeEdgeInconsistency(chosenEdge, edgeToCyclesMap.get(chosenEdge), graph,
+			double originalEdgeInconsistency = computeEdgeInconsistency(randomEdge, edgeToCyclesMap.get(randomEdge), graph,
 					integerToEdgeMap, true);
 			//System.out.println("AFTER EDGE PERTURBATION:");
-			double perturbedEdgeInconsistency = computeEdgeInconsistency(chosenEdge, edgeToCyclesMap.get(chosenEdge), graph,
+			double perturbedEdgeInconsistency = computeEdgeInconsistency(randomEdge, edgeToCyclesMap.get(randomEdge), graph,
 					integerToEdgeMap, false);
 			double deltaEdgeInconsistency = originalEdgeInconsistency - perturbedEdgeInconsistency;
-			System.out.println(deltaEdgeInconsistency + "\t" + "Edge " + i);
+			//System.out.println(deltaEdgeInconsistency + "\t" + "Edge " + randomEdge);
 		}
+
+		System.out.println("Total Inconsistency Magnitude: " + getTotalInconsistency(cycles, integerToEdgeMap, graph));
 	}
 	
 	private static Map<CustomWeightedEdge, List<BitSet>> generateEdgeToCyclesMap(List<BitSet> cycles, Map<Integer, 
@@ -156,5 +161,20 @@ public class Correction {
 			median = (double) inconsistencies.get(size / 2);
 		}
 		return median;
+	}
+	
+	private static double getTotalInconsistency(List<BitSet> cycles, Map<Integer, CustomWeightedEdge> integerToEdgeMap,
+			SimpleDirectedWeightedGraph<Integer, CustomWeightedEdge> graph) {
+		double totalCycleInconsistency = 0.0;
+		for (BitSet cycle : cycles) {
+			double cycleSum = 0.0;
+			// calculate cycle sum
+			for (int i = cycle.nextSetBit(0); i >= 0; i = cycle.nextSetBit(i + 1)) {
+				CustomWeightedEdge edge = integerToEdgeMap.get(i); // each edge in the cycle
+				cycleSum += graph.getEdgeWeight(edge);
+			}
+			totalCycleInconsistency += Math.abs(cycleSum);
+		}
+		return totalCycleInconsistency;
 	}
 }
