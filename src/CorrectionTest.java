@@ -103,19 +103,28 @@ public class CorrectionTest {
 	
 	@Test
 	public void testSimulatedAnnealing() {
-		Graph graph = new Graph("RandomPerfect100Nodes.txt");
-		graph.perturbEdges();
-		//Graph graph = new Graph("Random100NodesPerturbed.txt");
+		//Graph graph = new Graph("RandomPerfect100Nodes.txt");
+		//graph.perturbEdges();
+		Graph graph = new Graph("Random100NodesPerturbed.txt");
 		Cycles c = new Cycles(graph);
 		List<BitSet> cycles = c.getCycles(100);
 		Map<Integer, CustomWeightedEdge> integerToEdgeMap = c.getIntegerToEdgeMap();
 		Map<CustomWeightedEdge, Integer> edgeToIntegerMap = c.getEdgeToIntegerMap();
 		Correction.simulatedAnnealing(graph.getGraph(), cycles, integerToEdgeMap, edgeToIntegerMap);
-		graph.getPercentChangeOriginalToPerturbed(); // percent change between original graph and perturbed graph (how much error was induced)
-		graph.getPercentChangedPerturbedToCorrected(); // percent change between perturbed graph and corrected graph
-		graph.getPercentChangedCorrectedToOriginal();
+		//graph.getPercentChangeOriginalToPerturbed(); // percent change between original graph and perturbed graph (how much error was induced)
+		//graph.getPercentChangedPerturbedToCorrected(); // percent change between perturbed graph and corrected graph
+		//graph.getPercentChangedCorrectedToOriginal();
 		
 		//graph.printIntegerToEdgeMap(integerToEdgeMap);
+	}
+	
+	@Test
+	public void testGetTemperature() {
+		// getTemperature(int iteration, double initialTemp, double lambda)
+		for (int i = 0; i < 10; i++) {
+			// getProbability(double temperature, double delta)
+			boolean probability = Correction.getProbability(i, 1.0);
+		}
 	}
 	
 

@@ -78,25 +78,28 @@ public class Correction {
 		CustomWeightedEdge[] edgeArray = edgeSet.toArray(new CustomWeightedEdge[edgeSet.size()]);
 		
 		System.out.println("Total Inconsistency Magnitude: " + getTotalInconsistency(cycles, integerToEdgeMap, graph));
-		
+		System.out.println();
 		// Here is the meat of the algorithm.
-		for (int i = 0; i < 100000; i++) {
+		for (int i = 0; i < 5; i++) {
+			System.out.println("ITERATION " + i);
 			int randomIndex = r.nextInt(edgeArray.length);
 			CustomWeightedEdge randomEdge = edgeArray[randomIndex];
 			
-			//System.out.println("Random Edge: " + randomEdge + "\t" + "Edge Number: " + randomIndex);
+			System.out.println("Random Edge: " + randomEdge + "\t" + "Edge Number: " + randomIndex);
 			
 			if (randomEdge.getCycleCount() == 0) {
 				continue;
 			}
-			//System.out.println("BEFORE EDGE PERTURBATION:");
+			System.out.println("BEFORE EDGE PERTURBATION:");
 			double originalEdgeInconsistency = computeEdgeInconsistency(randomEdge, edgeToCyclesMap.get(randomEdge), graph,
 					integerToEdgeMap, true);
-			//System.out.println("AFTER EDGE PERTURBATION:");
+			System.out.println("AFTER EDGE PERTURBATION:");
 			double perturbedEdgeInconsistency = computeEdgeInconsistency(randomEdge, edgeToCyclesMap.get(randomEdge), graph,
 					integerToEdgeMap, false);
-			double deltaEdgeInconsistency = originalEdgeInconsistency - perturbedEdgeInconsistency;
-			//System.out.println(deltaEdgeInconsistency + "\t" + "Edge " + randomEdge);
+			double deltaEdgeInconsistency = perturbedEdgeInconsistency - originalEdgeInconsistency;
+			System.out.println("delta inconsistency: " + deltaEdgeInconsistency + "\t");
+			System.out.println("Probability: " + getProbability(i, deltaEdgeInconsistency));
+			System.out.println();
 		}
 
 		System.out.println("Total Inconsistency Magnitude: " + getTotalInconsistency(cycles, integerToEdgeMap, graph));
@@ -141,12 +144,13 @@ public class Correction {
 			totalInconsistencyMagnitude += Math.abs(cycleInconsistency);
 		}
 		//System.out.println("Total Inconsistency: " + totalInconsistency);
-		//System.out.println("Total Inconsistency Magnitude: " + totalInconsistencyMagnitude);
+		System.out.println("Total Inconsistency Magnitude: " + totalInconsistencyMagnitude);
 		if (perturbEdge) {
 			Collections.sort(inconsistencies);
 			//System.out.println(inconsistencies);
 			double median = getMedianInconsistency(inconsistencies);
 			//System.out.println("Median: " + median);
+			System.out.println("perturb amount: " + (-1 * median));
 			graph.setEdgeWeight(edge, graph.getEdgeWeight(edge) - median);
 		}
 		return totalInconsistencyMagnitude;
@@ -176,5 +180,30 @@ public class Correction {
 			totalCycleInconsistency += Math.abs(cycleSum);
 		}
 		return totalCycleInconsistency;
+	}
+	
+	public static double getTemperature(int iteration, double initialTemp, double lambda) {
+		double temperature = initialTemp * Math.exp(-1.0 * lambda * iteration);
+		return temperature;
+	}
+	
+	// z is the original consistency of an edge
+	// z' is the new consistency of the edge *after* the perturbation
+	// delta is z' - z
+	// If delta < 0, we always accept because the inconsistency was lowered and thus improved.
+	// If delta > 0, we accept with the probability that e ^ (-delta / temperature) > random(0, 1)
+	// If temperature is higher, then the probability is greater
+	// If temperature is lower, then the probability is lower
+	// If delta is greater, then the probability is lower
+	// If delta is lower, then the probability is greater
+	public static boolean getProbability(int iteration, double delta) {
+		// getTemperature(int iteration, double initialTemp, double lambda)
+		double temperature = getTemperature(iteration, 10.0, 0.02);
+		
+		Random r = new Random();
+		double randomUniformDouble = r.nextDouble(); // randomly generates a number uniformly between 0 and 1
+		double probability = Math.exp(-1.0 * delta / temperature);
+		System.out.println("probability: " + probability);
+		return probability > randomUniformDouble;
 	}
 }
