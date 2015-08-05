@@ -1,6 +1,9 @@
 import java.util.ArrayList;
 import java.util.BitSet;
+<<<<<<< Updated upstream
 import java.util.Collections;
+=======
+>>>>>>> Stashed changes
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,7 +22,7 @@ public class Correction {
 		int iteration = 0;
 		double totalCycleInconsistency = 1.0;
 		
-		while (totalCycleInconsistency > 0.000001) {
+		while (totalCycleInconsistency > 0.001) {
 			iteration++;
 			System.out.println("---------------------------------------------");
 			System.out.println("ITERATION: " + iteration);
@@ -67,6 +70,7 @@ public class Correction {
 		return totalCycleInconsistency;
 	}
 	
+<<<<<<< Updated upstream
 	public static void simulatedAnnealing(SimpleDirectedWeightedGraph<Integer, CustomWeightedEdge> graph, List<BitSet> cycles,
 			Map<Integer, CustomWeightedEdge> integerToEdgeMap, Map<CustomWeightedEdge, Integer> edgeToIntegerMap) {
 		// write a helper method which creates a map from an edge to the set of cycles that contain the edge
@@ -196,6 +200,96 @@ public class Correction {
 	
 	private static double getTotalInconsistency(List<BitSet> cycles, Map<Integer, CustomWeightedEdge> integerToEdgeMap,
 			SimpleDirectedWeightedGraph<Integer, CustomWeightedEdge> graph) {
+=======
+	public static void simulatedAnnealing(int maxNumIterations, SimpleDirectedWeightedGraph<Integer, 
+			CustomWeightedEdge> graph, List<BitSet> cycles, Map<CustomWeightedEdge, Integer> edgeToIntegerMap,
+			Map<Integer, CustomWeightedEdge> integerToEdgeMap) {
+		
+		Map<CustomWeightedEdge, List<BitSet>> edgeToCyclesMap = generateEdgeToCyclesMap(graph, cycles, 
+				edgeToIntegerMap);
+		Set<CustomWeightedEdge> edgeSet = graph.edgeSet();
+		CustomWeightedEdge[] edgeSetArray = edgeSet.toArray(new CustomWeightedEdge[edgeSet.size()]);
+		
+		double originalTotalInconsistency = calculateTotalInconsistency(graph, cycles, integerToEdgeMap);
+		
+		for (int i = 0; i < maxNumIterations; i++) {
+			System.out.println("ITERATION: " + i);
+			// Choose a random edge.
+			Random r = new Random();
+			int randomIndex = r.nextInt(edgeSetArray.length);
+			CustomWeightedEdge edge = edgeSetArray[randomIndex];
+			System.out.println(edge);
+			
+			double originalEdgeWeight = graph.getEdgeWeight(edge);
+			System.out.println("original edge weight: " + originalEdgeWeight);
+			// Get total sum of magnitude of inconsistencies for this randomly chosen edge.
+			double originalTotalEdgeCyclesInconsistency = calculateEdgeCyclesInconsistency(graph, edge, 
+					edgeToCyclesMap, integerToEdgeMap);
+			System.out.println("original inconsistency: " + originalTotalEdgeCyclesInconsistency);
+			System.out.println();
+			
+			// Randomly perturb the edge uniformly between -1.0 and 1.0.
+			/*double perturbAmount = -1.0 + 2.0 * r.nextDouble();
+			graph.setEdgeWeight(edge, originalEdgeWeight + perturbAmount);
+			System.out.println("perturbed edge weight: " + (originalEdgeWeight + perturbAmount));
+			double perturbedTotalEdgeCyclesInconsistency = calculateEdgeCyclesInconsistency(graph, edge, 
+					edgeToCyclesMap, integerToEdgeMap);
+			System.out.println("perturbed inconsistency: " + perturbedTotalEdgeCyclesInconsistency);
+			
+			if (perturbedTotalEdgeCyclesInconsistency < originalTotalEdgeCyclesInconsistency) {
+				System.out.println("***Replaced original edge with perturbed edge***");
+			} else {
+				// set the edge weight back to its original weight
+				graph.setEdgeWeight(edge, originalEdgeWeight);
+			}*/
+			
+			for (int j = 0; j < 20; j++) {
+				// increment the edge weight by 0.1
+				double currentEdgeWeight = graph.getEdgeWeight(edge);
+				System.out.println("Current edge weight: " + currentEdgeWeight);
+				graph.setEdgeWeight(edge, currentEdgeWeight + 0.1);
+				double totalEdgeCyclesInconsistency = calculateEdgeCyclesInconsistency(graph, edge, 
+						edgeToCyclesMap, integerToEdgeMap);
+				System.out.println(totalEdgeCyclesInconsistency);
+			}
+			System.out.println("----------------------------------------------");
+			// Generate a random "neighbor". Perturb the edge uniformly randomly between (-1, 1).
+		}
+		System.out.println();
+		// Print out the original total inconsistency.
+		System.out.println("Original total inconsistency: " + originalTotalInconsistency);
+				
+		// Print out the final total inconsistency.
+		double finalTotalInconsistency = calculateTotalInconsistency(graph, cycles, integerToEdgeMap);
+		System.out.println("Final total inconsistency: " + finalTotalInconsistency);
+	}
+	
+	/**
+	 * Helper function that computes the total inconsistency for all the cycles of a particular edge.
+	 */
+	public static double calculateEdgeCyclesInconsistency(SimpleDirectedWeightedGraph<Integer, CustomWeightedEdge> graph,
+			CustomWeightedEdge edge, Map<CustomWeightedEdge, List<BitSet>> edgeToCyclesMap, 
+			Map<Integer, CustomWeightedEdge> integerToEdgeMap) {
+		List<BitSet> cyclesOfEdge = edgeToCyclesMap.get(edge);
+		double totalEdgeCyclesInconsistencyMagnitude = 0.0;
+		for (BitSet cycle : cyclesOfEdge) {
+			double cycleSum = 0.0;
+			// calculate cycle sum
+			for (int j = cycle.nextSetBit(0); j >= 0; j = cycle.nextSetBit(j + 1)) {
+				CustomWeightedEdge edgeInCycle = integerToEdgeMap.get(j); // each edge in the cycle
+				cycleSum += graph.getEdgeWeight(edgeInCycle);
+			}
+			totalEdgeCyclesInconsistencyMagnitude += Math.abs(cycleSum);
+		}
+		return totalEdgeCyclesInconsistencyMagnitude;
+	}
+	
+	/**
+	 * Helper function that returns the total magnitude inconsistency for all of the cycles in the graph
+	 */
+	public static double calculateTotalInconsistency(SimpleDirectedWeightedGraph<Integer, CustomWeightedEdge> graph,
+			List<BitSet> cycles, Map<Integer, CustomWeightedEdge> integerToEdgeMap) {
+>>>>>>> Stashed changes
 		double totalCycleInconsistency = 0.0;
 		for (BitSet cycle : cycles) {
 			double cycleSum = 0.0;
@@ -204,11 +298,16 @@ public class Correction {
 				CustomWeightedEdge edge = integerToEdgeMap.get(i); // each edge in the cycle
 				cycleSum += graph.getEdgeWeight(edge);
 			}
+<<<<<<< Updated upstream
+=======
+			//System.out.println("cycle sum: " + cycleSum);
+>>>>>>> Stashed changes
 			totalCycleInconsistency += Math.abs(cycleSum);
 		}
 		return totalCycleInconsistency;
 	}
 	
+<<<<<<< Updated upstream
 	public static double getTemperature(int iteration, double initialTemp, double lambda) {
 		double temperature = initialTemp * Math.exp(-1.0 * lambda * iteration);
 		return temperature;
@@ -232,5 +331,63 @@ public class Correction {
 		System.out.println("Probability: " + probability);
 		//System.out.println("temperature: " + temperature + "\t" + "probability: " + probability);
 		return probability > randomUniformDouble;
+=======
+	// want some helper method that generates a Map from edge to the Set<BitSet> cycles that the edge is a part of
+	// Then, we can use this Map to save a lot of time when computing our objective function at each iteration
+	public static Map<CustomWeightedEdge, List<BitSet>> generateEdgeToCyclesMap(SimpleDirectedWeightedGraph<Integer,
+			CustomWeightedEdge> graph, List<BitSet> cycles, Map<CustomWeightedEdge, Integer> edgeToIntegerMap) {
+		
+		Map<CustomWeightedEdge, List<BitSet>> map = new HashMap<CustomWeightedEdge, List<BitSet>>();
+		
+		for (CustomWeightedEdge edge : graph.edgeSet()) {
+			List<BitSet> cyclesOfEdge = new ArrayList<BitSet>();
+			for (BitSet cycle : cycles) {
+				int i = edgeToIntegerMap.get(edge);
+				if (cycle.get(i)) { // if this cycle contains the current edge of the outer for loop
+					cyclesOfEdge.add(cycle);
+				}
+			}
+			map.put(edge, cyclesOfEdge);
+			//System.out.println(edge + " - " + map.get(edge).size());
+		}
+		
+		
+		return map;
+	}
+	
+	public static void printVotedInconsistencies(SimpleDirectedWeightedGraph<Integer, CustomWeightedEdge> graph, 
+			List<BitSet> cycles, Map<Integer, CustomWeightedEdge> integerToEdgeMap) {
+		for (BitSet cycle : cycles) {
+			int cycleLength = cycle.cardinality();
+			double cycleSum = 0.0;
+			// calculate cycle sum
+			for (int i = cycle.nextSetBit(0); i >= 0; i = cycle.nextSetBit(i + 1)) {
+				CustomWeightedEdge edge = integerToEdgeMap.get(i); // each edge in the cycle
+				cycleSum += graph.getEdgeWeight(edge);
+			}
+			double edgePerturbation = Math.abs(cycleSum / (double) cycleLength); // epsilon = 3.0
+			//System.out.println("edge perturbation: " + edgePerturbation);
+			// now that we have the cycle sum, need to distribute the negative of it equally to the edges
+			for (int j = cycle.nextSetBit(0); j >= 0; j = cycle.nextSetBit(j + 1)) {
+				CustomWeightedEdge edge = integerToEdgeMap.get(j); // each edge in the cycle
+				edge.addPerturbation(edgePerturbation); // ADD THE ABSOLUTE VALUE INSTEAD
+			}
+		}
+		System.out.println();
+		// for each edge in the graph
+		for (CustomWeightedEdge edge : graph.edgeSet()) {
+			System.out.println(edge.getTotalPerturbation());
+			if (edge.getCycleCount() == 0) { // ignore any edges that aren't in cycles
+				continue;
+			}
+			//System.out.println(edge.getTotalPerturbation());
+			//System.out.println(edge.getCycleCount());
+			double averageEdgePerturbation = edge.getTotalPerturbation() / (double) edge.getCycleCount();
+			//System.out.println(averageEdgePerturbation);
+			double previousEdgeWeight = graph.getEdgeWeight(edge);
+			graph.setEdgeWeight(edge, previousEdgeWeight + averageEdgePerturbation);
+			edge.resetTotalPerturbation();
+		}
+>>>>>>> Stashed changes
 	}
 }

@@ -558,7 +558,7 @@ public class Cycles {
 	
 	public void saveCyclesMatrixAsText(List<BitSet> cycles) {
 		try {
-			File file = new File("/Users/christopher/Desktop/Cycles_Matrix/matrix.txt");
+			File file = new File("/Users/crisscrosskao/Desktop/Cycles_Matrix/matrix_M=100.txt");
 			if (!file.exists()) {
 				file.createNewFile();
 			}
@@ -579,5 +579,24 @@ public class Cycles {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public void getEdgeCyclesCardinality(List<BitSet> cycles) {
+		// for each edge, which is represented by an int, calculate the cardinality
+		System.out.println(cycles);
+		int totalCardinality = 0;
+		for (int i = 0; i < graph.edgeSet().size(); i++) {
+			// get all cycles that contain this int (edge)
+			BitSet cyclesCardinality = new BitSet();
+			for (BitSet cycle : cycles) {
+				if (cycle.get(i)) { // if this cycle contains the current edge of the outer for loop
+					cyclesCardinality.or(cycle);
+				}
+			}
+			System.out.println("Edge " + i + " - " + cyclesCardinality.cardinality());
+			totalCardinality += cyclesCardinality.cardinality();
+		}
+		int averageCardinality = totalCardinality / graph.edgeSet().size();
+		System.out.println("average cardinality: " + averageCardinality);
 	}
 }

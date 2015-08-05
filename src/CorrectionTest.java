@@ -64,7 +64,7 @@ public class CorrectionTest {
 		// need to print out the perturbed graph's integerToEdgeMap
 		// need to print out the perturbed graph's cycles matrix
 		Graph graph = new Graph(100); // only works for sizes greater than 4
-		graph.saveGraphAsText();
+		/*graph.saveGraphAsText();
 		System.out.println("perfect edges");
 		graph.printEdges();
 		graph.perturbEdges();
@@ -72,7 +72,7 @@ public class CorrectionTest {
 		graph.printEdges();
 		Cycles c = new Cycles(graph);
 		List<BitSet> cycles = c.getCycles(200);
-		c.saveCyclesMatrixAsText(cycles);
+		c.saveCyclesMatrixAsText(cycles);*/
 		/*Map<Integer, CustomWeightedEdge> integerToEdgeMap = c.getIntegerToEdgeMap();
 		Correction.correctEdges(graph.getGraph(), cycles, integerToEdgeMap);
 		graph.getPercentChangeOriginalToPerturbed(); // percent change between original graph and perturbed graph (how much error was induced)
@@ -91,7 +91,11 @@ public class CorrectionTest {
 		//graph.printEdges();
 		//graph.saveGraphAsText();
 		Cycles c = new Cycles(graph);
+<<<<<<< Updated upstream
 		List<BitSet> cycles = c.getCycles(100);
+=======
+		List<BitSet> cycles = c.getCycles(300);
+>>>>>>> Stashed changes
 		c.saveCyclesMatrixAsText(cycles);
 		Map<Integer, CustomWeightedEdge> integerToEdgeMap = c.getIntegerToEdgeMap();
 		Correction.correctEdges(graph.getGraph(), cycles, integerToEdgeMap);
@@ -102,6 +106,7 @@ public class CorrectionTest {
 	}
 	
 	@Test
+<<<<<<< Updated upstream
 	public void testSimulatedAnnealing() {
 		Graph graph = new Graph("RandomPerfect100Nodes.txt");
 		graph.perturbEdges();
@@ -126,6 +131,28 @@ public class CorrectionTest {
 			System.out.print("Iteration " + i + "\t");
 			boolean probability = Correction.getProbability(i, 10.0);
 		}
+=======
+	public void testPrintVotedInconsistencies() {
+		Graph graph = new Graph("Random100NodesPerturbed.txt");
+		graph.perturbEdges();
+		//graph.printEdgeWeights();
+		//graph.printEdges();
+		Cycles c = new Cycles(graph);
+		List<BitSet> cycles = c.getCycles(100);
+		c.saveCyclesMatrixAsText(cycles);
+		Map<Integer, CustomWeightedEdge> integerToEdgeMap = c.getIntegerToEdgeMap();
+		Correction.printVotedInconsistencies(graph.getGraph(), cycles, integerToEdgeMap);
+	}
+	
+	@Test
+	public void testSimulatedAnnealing() {
+		Graph graph = new Graph("Random100NodesPerturbed.txt");
+		Cycles c = new Cycles(graph);
+		List<BitSet> cycles = c.getCycles(100);
+		Map<CustomWeightedEdge, Integer> edgeToIntegerMap = c.getEdgeToIntegerMap();
+		Map<Integer, CustomWeightedEdge> integerToEdgeMap = c.getIntegerToEdgeMap();
+		Correction.simulatedAnnealing(1, graph.getGraph(), cycles, edgeToIntegerMap, integerToEdgeMap);
+>>>>>>> Stashed changes
 	}
 	
 
