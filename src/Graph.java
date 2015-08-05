@@ -84,8 +84,7 @@ public class Graph {
 	}
 	
 	/** 
-	 * Alternate constructor for the Graph class, which creates a random graph instead of reading in a .txt file.
-	 * The created random graph has N nodes and 2N - 1 edges. (4N - 2 directed edges)
+	 * Alternate constructor for the Graph class, which creates a random clique instead of reading in a .txt file
 	 * @param size the number of nodes that we want in the graph/clique
 	 */
 	public Graph(int size) {
@@ -113,7 +112,6 @@ public class Graph {
 			// assign a random value to the vertex
 			Random r = new Random();
 			double randomFreeBindingEnergy = -5.0 + 10.0 * r.nextDouble(); // random double between -5.0 and 5.0 inclusive
-			System.out.println(randomFreeBindingEnergy);
 			vertexToFreeBindingEnergyMap.put(i, randomFreeBindingEnergy);
 			notInTree.add(i); // initially, none of the edges are in the tree
 		}
@@ -154,7 +152,7 @@ public class Graph {
 				continue;
 			}
 			double edgePerturbation = -1.0 + 2.0 * r.nextDouble();
-			//System.out.println("edge perturbation: " + edgePerturbation);
+			System.out.println("edge perturbation: " + edgePerturbation);
 			graph.setEdgeWeight(edge, graph.getEdgeWeight(edge) + edgePerturbation);
 			CustomWeightedEdge backwardEdge = graph.getEdge(graph.getEdgeTarget(edge), 
 					graph.getEdgeSource(edge));
@@ -300,30 +298,17 @@ public class Graph {
 		return connectedComponents;
 	}
 	
-	public void printEdgeWeights() {
-		Set<CustomWeightedEdge> edges = graph.edgeSet();
-		System.out.println("Edge Weights (For Matlab):");
-		for (CustomWeightedEdge edge : edges) {
-			double weight = graph.getEdgeWeight(edge);
-			Integer sourceVertex = graph.getEdgeSource(edge);
-			Integer targetVertex = graph.getEdgeTarget(edge);
-			CustomWeightedEdge originalEdge = originalGraph.getEdge(sourceVertex, targetVertex);
-			double originalWeight = originalGraph.getEdgeWeight(originalEdge);
-			System.out.println(weight);
-		}
-		System.out.println();
-	}
-	
 	public void printEdges() {
 		Set<CustomWeightedEdge> edges = graph.edgeSet();
-		System.out.println("Edges:");
+		System.out.println(" Edges:          Original Weights:      Perturbed Weights:");
 		for (CustomWeightedEdge edge : edges) {
 			double weight = graph.getEdgeWeight(edge);
 			Integer sourceVertex = graph.getEdgeSource(edge);
 			Integer targetVertex = graph.getEdgeTarget(edge);
 			CustomWeightedEdge originalEdge = originalGraph.getEdge(sourceVertex, targetVertex);
 			double originalWeight = originalGraph.getEdgeWeight(originalEdge);
-			System.out.println(sourceVertex + " " + targetVertex + " " + weight);
+			//System.out.println(edge + "           " + originalWeight + "              " + weight);
+			System.out.println(weight);
 		}
 		System.out.println();
 	}

@@ -253,12 +253,4 @@ public class CyclesTest {
 		Cycles c = new Cycles(graph);
 		c.printIntegerToEdgeMap();
 	}
-	
-	@Test
-	public void testGetEdgeCyclesCardinality() {
-		Graph graph = new Graph("Random100NodesPerturbed.txt");
-		Cycles c = new Cycles(graph);
-		List<BitSet> cycles = c.getCycles(150);
-		c.getEdgeCyclesCardinality(cycles);
-	}
 }
