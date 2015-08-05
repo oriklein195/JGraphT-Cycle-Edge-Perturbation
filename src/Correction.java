@@ -1,9 +1,6 @@
 import java.util.ArrayList;
 import java.util.BitSet;
-<<<<<<< Updated upstream
 import java.util.Collections;
-=======
->>>>>>> Stashed changes
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
