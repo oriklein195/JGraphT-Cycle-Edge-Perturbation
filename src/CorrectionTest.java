@@ -121,11 +121,28 @@ public class CorrectionTest {
 	@Test
 	public void testGetTemperature() {
 		// getTemperature(int iteration, double initialTemp, double lambda)
-		for (int i = 0; i < 10000; i++) {
-			// getProbability(double temperature, double delta)
-			System.out.print("Iteration " + i + "\t");
-			boolean probability = Correction.getProbability(i, 10.0);
+		for (int i = 0; i < 100000; i++) {
+			//double temperature = Correction.getTemperature(i, 10.0, 0.0005);
+			double temperature = Correction.getTemperature(i, 10.0, 0.0003); // try .0003 and .0007
+
+			double probability = Correction.getProbability(i, .1, temperature);
+			if (i % 10000 == 0) {
+				// getProbability(double temperature, double delta)
+				System.out.print("Iteration " + i + "\t");
+				System.out.println("temperature: " + temperature + "\t" + "probability: " + probability);
+			}
 		}
+	}
+	
+	@Test
+	public void testSimulatedAnnealingComputeEdgeInconsistency() {
+		Graph graph = new Graph("scc2.txt");
+		Cycles c = new Cycles(graph);
+		List<BitSet> cycles = c.getCycles(4);
+		Map<Integer, CustomWeightedEdge> integerToEdgeMap = c.getIntegerToEdgeMap();
+		Map<CustomWeightedEdge, Integer> edgeToIntegerMap = c.getEdgeToIntegerMap();
+		Correction.simulatedAnnealing(graph.getGraph(), cycles, integerToEdgeMap, edgeToIntegerMap);
+		System.out.println(integerToEdgeMap);
 	}
 	
 
