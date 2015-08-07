@@ -31,7 +31,7 @@ public class Cycles {
 	
 	// Constructor for Cycles class.
 	public Cycles(Graph graph) {
-		edgeToIntegerMap = new HashMap<CustomWeightedEdge, Integer>();
+		edgeToIntegerMap = graph.getEdgeToIntegerMap();
 		integerToEdgeMap = new TreeMap<Integer, CustomWeightedEdge>();
 		pq = new PriorityQueue<CustomWeightedEdge>();
 		nodeToBitSet = new HashMap<Integer, BitSet>();

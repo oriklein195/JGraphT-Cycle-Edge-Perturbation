@@ -84,19 +84,17 @@ public class Graph {
 	}
 	
 	/** 
-	 * Alternate constructor for the Graph class, which creates a random clique instead of reading in a .txt file
+	 * Alternate constructor for the Graph class, which creates a random perfect graph instead of reading in a .txt file. There are n nodes
+	 * and 2n - 1 edges. Basically, we make a minimally connected spanning tree and then n more random edges.
 	 * @param size the number of nodes that we want in the graph/clique
 	 */
 	public Graph(int size) {
 		//originalGraph = new SimpleDirectedWeightedGraph<Integer, CustomWeightedEdge>(CustomWeightedEdge.class);
 		//perturbedGraph = new SimpleDirectedWeightedGraph<Integer, CustomWeightedEdge>(CustomWeightedEdge.class);
 		createRandomPerfectGraph(size);
-		System.out.println("Original Graph:");
+		/*System.out.println("Original Graph:");
 		System.out.println(graph.vertexSet().size() + " Vertices: " + graph.vertexSet());
-		System.out.println(graph.edgeSet().size() + " Edges: ");
-		for (CustomWeightedEdge edge : graph.edgeSet()) {
-			System.out.println(edge + "\t" + graph.getEdgeWeight(edge));
-		}
+		System.out.println(graph.edgeSet().size() + " Edges: ");*/
 		originalGraph = copyGraph(graph);
 		
 	}
@@ -136,7 +134,6 @@ public class Graph {
 			Integer node2 = pickRandomIntegerFromList(inTree);
 			if (!graph.containsEdge(node1, node2) && node1 != node2) { // add an edge, move to the next iteration
 				double forwardEdgeWeight = vertexToFreeBindingEnergyMap.get(node2) - vertexToFreeBindingEnergyMap.get(node1);
-				System.out.println("forward edge weight: " + forwardEdgeWeight);
 				addEdge(node1, node2, forwardEdgeWeight);
 				numEdgesAdded++;
 			} 
@@ -152,13 +149,27 @@ public class Graph {
 				continue;
 			}
 			double edgePerturbation = -1.0 + 2.0 * r.nextDouble();
-			System.out.println("edge perturbation: " + edgePerturbation);
 			graph.setEdgeWeight(edge, graph.getEdgeWeight(edge) + edgePerturbation);
 			CustomWeightedEdge backwardEdge = graph.getEdge(graph.getEdgeTarget(edge), 
 					graph.getEdgeSource(edge));
 			graph.setEdgeWeight(backwardEdge, graph.getEdgeWeight(backwardEdge) - edgePerturbation);
 		}
 		perturbedGraph = copyGraph(graph);
+	}
+
+	public double getDistanceFromPerfectGraph() {
+		// assumed that originalGraph and perturbedGraph still have the same nodes and edges.
+		// The only thing that has changed is the weight on each edge.
+		double totalEdgeDifference = 0.0; // magnitude of the total edge perturbations
+		for (CustomWeightedEdge originalEdge : originalGraph.edgeSet()) {
+			double originalEdgeWeight = originalGraph.getEdgeWeight(originalEdge);
+			Integer sourceVertex = originalGraph.getEdgeSource(originalEdge);
+			Integer targetVertex = originalGraph.getEdgeTarget(originalEdge);
+			CustomWeightedEdge perturbedEdge = perturbedGraph.getEdge(sourceVertex, targetVertex);
+			double perturbedEdgeWeight = perturbedGraph.getEdgeWeight(perturbedEdge);
+			totalEdgeDifference += Math.abs(originalEdgeWeight - perturbedEdgeWeight);
+		}
+		return totalEdgeDifference;
 	}
 	
 	public Integer pickRandomIntegerFromList(List<Integer> list) {
@@ -409,11 +420,26 @@ public class Graph {
 		}
 	}
 	
-	public void printIntegerToEdgeMap(Map<Integer, CustomWeightedEdge> integerToEdgeMap) {
-		for (Integer key : integerToEdgeMap.keySet()) {
-			CustomWeightedEdge edge = integerToEdgeMap.get(key);
-			System.out.println(key + " - " + edge + " - " + graph.getEdgeWeight(edge));
+	public Map<Integer, CustomWeightedEdge> getIntegerToEdgeMap() {
+		Map<Integer, CustomWeightedEdge> integerToEdgeMap = new TreeMap<Integer, CustomWeightedEdge>();
+
+		int edgeInteger = 0;
+		for (CustomWeightedEdge edge : graph.edgeSet()) {
+			integerToEdgeMap.put(edgeInteger, edge);
+			edgeInteger++;
 		}
+		return integerToEdgeMap;
+	}
+	
+	public Map<CustomWeightedEdge, Integer> getEdgeToIntegerMap() {
+		Map<CustomWeightedEdge, Integer> edgeToIntegerMap = new HashMap<CustomWeightedEdge, Integer>();
+
+		int edgeInteger = 0;
+		for (CustomWeightedEdge edge : graph.edgeSet()) {
+			edgeToIntegerMap.put(edge, edgeInteger);
+			edgeInteger++;
+		}
+		return edgeToIntegerMap;
 	}
 	
 }

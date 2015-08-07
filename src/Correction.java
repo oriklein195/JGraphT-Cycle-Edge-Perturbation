@@ -211,9 +211,9 @@ public class Correction {
 		return medianInconsistency;
 	}
 	
-	private static double getTotalInconsistency(List<BitSet> cycles, Map<Integer, CustomWeightedEdge> integerToEdgeMap,
+	public static double getTotalInconsistency(List<BitSet> cycles, Map<Integer, CustomWeightedEdge> integerToEdgeMap,
 			SimpleDirectedWeightedGraph<Integer, CustomWeightedEdge> graph) {
-		double totalCycleInconsistency = 0.0;
+		double totalInconsistencyMagnitude = 0.0;
 		for (BitSet cycle : cycles) {
 			double cycleSum = 0.0;
 			// calculate cycle sum
@@ -221,9 +221,10 @@ public class Correction {
 				CustomWeightedEdge edge = integerToEdgeMap.get(i); // each edge in the cycle
 				cycleSum += graph.getEdgeWeight(edge);
 			}
-			totalCycleInconsistency += Math.abs(cycleSum);
+			//System.out.println(cycle + "\t" + cycleSum);
+			totalInconsistencyMagnitude += Math.abs(cycleSum);
 		}
-		return totalCycleInconsistency;
+		return totalInconsistencyMagnitude;
 	}
 	
 	public static double getTemperature(int iteration, double initialTemp, double lambda) {
