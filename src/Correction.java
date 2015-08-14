@@ -245,4 +245,20 @@ public class Correction {
 		double probability = Math.exp(-0.5 * delta / temperature);
 		return probability;
 	}
+	
+	public static double getDistanceFromOriginalGraph(SimpleDirectedWeightedGraph<Integer, CustomWeightedEdge> newGraph, 
+			SimpleDirectedWeightedGraph<Integer, CustomWeightedEdge> originalGraph) {
+		// assumed that originalGraph and perturbedGraph still have the same nodes and edges.
+		// The only thing that has changed is the weight on each edge.
+		double totalEdgeDifference = 0.0; // magnitude of the total edge perturbations
+		for (CustomWeightedEdge originalEdge : originalGraph.edgeSet()) {
+			double originalEdgeWeight = originalGraph.getEdgeWeight(originalEdge);
+			Integer sourceVertex = originalGraph.getEdgeSource(originalEdge);
+			Integer targetVertex = originalGraph.getEdgeTarget(originalEdge);
+			CustomWeightedEdge newEdge = newGraph.getEdge(sourceVertex, targetVertex);
+			double perturbedEdgeWeight = newGraph.getEdgeWeight(newEdge);
+			totalEdgeDifference += Math.abs(originalEdgeWeight - perturbedEdgeWeight);
+		}
+		return totalEdgeDifference;
+	}
 }

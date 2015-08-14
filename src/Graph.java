@@ -96,6 +96,38 @@ public class Graph {
 		System.out.println(graph.vertexSet().size() + " Vertices: " + graph.vertexSet());
 		System.out.println(graph.edgeSet().size() + " Edges: ");*/
 		originalGraph = copyGraph(graph);
+	}
+	
+	/**
+	 * Alternate constructor for the Graph class, which creates a perfect graph given an original graph. We want the new perfect graph to
+	 * contain the same edges as the original graph, but with different edge weights.
+	 */
+	public Graph(SimpleDirectedWeightedGraph<Integer, CustomWeightedEdge> originalGraph) {
+		graph = new SimpleDirectedWeightedGraph<Integer, CustomWeightedEdge>(CustomWeightedEdge.class);
+		Map<Integer, Double> vertexToFreeBindingEnergyMap = new HashMap<Integer, Double>();
+		
+		int size = originalGraph.vertexSet().size();
+		
+		for (int i = 0; i < size; i++) {
+			graph.addVertex(i);
+			// assign a random value to the vertex
+			Random r = new Random();
+			double randomFreeBindingEnergy = -5.0 + 10.0 * r.nextDouble(); // random double between -5.0 and 5.0 inclusive
+			vertexToFreeBindingEnergyMap.put(i, randomFreeBindingEnergy);
+		}
+		
+		for (CustomWeightedEdge edge : originalGraph.edgeSet()) {
+			Integer edgeSource = originalGraph.getEdgeSource(edge);
+			System.out.println("edgeSource: " + edgeSource);
+			Integer edgeTarget = originalGraph.getEdgeTarget(edge);
+			System.out.println("edgeTarget: " + edgeTarget);
+			
+			double forwardEdgeWeight = vertexToFreeBindingEnergyMap.get(edgeTarget) - vertexToFreeBindingEnergyMap.get(edgeSource);
+			
+			CustomWeightedEdge forwardEdge = graph.addEdge(edgeSource, edgeTarget);
+			graph.setEdgeWeight(forwardEdge, forwardEdgeWeight);
+		}
+		
 		
 	}
 	

@@ -3,7 +3,9 @@ import static org.junit.Assert.*;
 import java.util.BitSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import org.jgrapht.graph.SimpleDirectedWeightedGraph;
 import org.junit.Test;
 
 
@@ -177,15 +179,36 @@ public class CorrectionTest {
 			System.out.println(distanceFromPerfectGraph + "\t" + totalInconsistencyMagnitude);
 			
 		}
+		// Now we need to vary the amount that the perfect graph is perturbed
+		// Want to vary the distance from the perfect graph.
+		// Two ways we can do this:
+		// 1. Still perturb all edges, but with a smaller range. My intuition is that this should scale linearly? 
+		// 2. Only perturb a fraction of the edges, with the same range of (-1, 1). This may scale exponentially.
+		
+		// ** Also, does the cycle count make an impact on the total inconsistency magnitude?
 	}
 	
-	// Now we need to vary the amount that the perfect graph is perturbed
-	// Want to vary the distance from the perfect graph.
-	// Two ways we can do this:
-	// 1. Still perturb all edges, but with a smaller range. My intuition is that this should scale linearly? 
-	// 2. Only perturb a fraction of the edges, with the same range of (-1, 1). This may scale exponentially.
-	
-	// ** Also, does the cycle count make an impact on the total inconsistency magnitude?
+	@Test
+	public void testPlotDistancesOfPerfectGraphs() {
+		Graph originalGraph = new Graph("RandomPerfect100Nodes.txt");
+		Cycles c = new Cycles(originalGraph);
+		List<BitSet> cycles = c.getCycles(100);
+		Map<Integer, CustomWeightedEdge> integerToEdgeMap = c.getIntegerToEdgeMap();
+		// Get the set of edges in this original graph.
+		
+		for (int i = 0; i < 1; i++) {
+			// Create a new perfect graph with 100 nodes and 398 directed edges.
+			// Get the set of edges in this new graph.
+			// Compute the distance between this graph and the original graph
+			//    We will do this by writing a function which takes as input two sets of edges.
+			Graph newGraph = new Graph(originalGraph.getGraph());
+			double distance = Correction.getDistanceFromOriginalGraph(originalGraph.getGraph(), newGraph.getGraph());
+			System.out.println("Distance from Original Graph: " + distance);
+			
+			double totalInconsistency = Correction.getTotalInconsistency(cycles, integerToEdgeMap, newGraph.getGraph());
+			System.out.println("Total Inconsistency: " + totalInconsistency);
+		}
+	}
 	
 
 }
